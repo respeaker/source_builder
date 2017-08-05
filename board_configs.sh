@@ -77,10 +77,10 @@ case ${BOARD} in
 		DTB=rk3288-phycore-rdk.dtb
 		CHIP="rk3288"
 		;;
-	"rk3229-evb")
+	"respeaker")
 		DEFCONFIG=rockchip_linux_defconfig
 		UBOOT_DEFCONFIG=evb-rk3229_defconfig
-		DTB=rk3229-evb.dtb
+		DTB=rk3229-reskeaker-v2.dtb
 		CHIP="rk322x"
 		;;
 	"rk3036-kylin")
