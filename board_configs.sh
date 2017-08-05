@@ -80,7 +80,7 @@ case ${BOARD} in
 	"respeaker")
 		DEFCONFIG=rockchip_linux_defconfig
 		UBOOT_DEFCONFIG=evb-rk3229_defconfig
-		DTB=rk3229-reskeaker-v2.dtb
+		DTB=rk3229-respeaker-v2.dtb
 		CHIP="rk322x"
 		;;
 	"rk3036-kylin")
