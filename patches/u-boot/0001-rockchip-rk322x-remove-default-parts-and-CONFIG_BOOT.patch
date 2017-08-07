@@ -1,0 +1,66 @@
+From 9227fede0fea0a1e692cb71aa8977111434d93c7 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Mon, 7 Aug 2017 11:10:12 +0800
+Subject: [PATCH] rockchip:rk3229 remove default parts and CONFIG_BOOTCOMM
+
+---
+ include/configs/evb_rk3229.h | 28 +++-------------------------
+ 1 file changed, 3 insertions(+), 25 deletions(-)
+
+diff --git a/include/configs/evb_rk3229.h b/include/configs/evb_rk3229.h
+index 8f8e50f..183b498 100644
+--- a/include/configs/evb_rk3229.h
++++ b/include/configs/evb_rk3229.h
+@@ -1,5 +1,5 @@
+ /*
+- * (C) Copyright 2017 Rockchip Electronics Co., Ltd
++ * (C) Copyright 2015 Rockchip Electronics Co., Ltd
+  *
+  * SPDX-License-Identifier:     GPL-2.0+
+  */
+@@ -14,40 +14,18 @@
+ #undef CONFIG_ENV_SIZE
+ #define CONFIG_ENV_SIZE                 (32 << 10)
+ #define CONFIG_ENV_IS_IN_MMC
+-#define CONFIG_SYS_MMC_ENV_DEV          0
+-#define CONFIG_SYS_MMC_ENV_PART         0
++#define CONFIG_SYS_MMC_ENV_DEV          1
++#define CONFIG_SYS_MMC_ENV_PART         1
+ #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+ 
+ #ifndef CONFIG_SPL_BUILD
+ /* Enable gpt partition table */
+-#undef PARTS_DEFAULT
+-#define PARTS_DEFAULT \
+-	"uuid_disk=${uuid_gpt_disk};" \
+-	"name=loader_a,start=4M,size=4M,uuid=${uuid_gpt_loader};" \
+-	"name=loader_b,size=4M,uuid=${uuid_gpt_reserved};" \
+-	"name=trust_a,size=4M,uuid=${uuid_gpt_reserved};" \
+-	"name=trust_b,size=4M,uuid=${uuid_gpt_reserved};" \
+-	"name=misc,size=4M,uuid=${uuid_gpt_misc};" \
+-	"name=metadata,size=16M,uuid=${uuid_gpt_metadata};" \
+-	"name=boot_a,size=32M,uuid=${uuid_gpt_boot_a};" \
+-	"name=boot_b,size=32M,uuid=${uuid_gpt_boot_b};" \
+-	"name=system_a,size=818M,uuid=${uuid_gpt_system_a};" \
+-	"name=system_b,size=818M,uuid=${uuid_gpt_system_b};" \
+-	"name=vendor_a,size=50M,uuid=${uuid_gpt_vendor_a};" \
+-	"name=vendor_b,size=50M,uuid=${uuid_gpt_vendor_b};" \
+-	"name=cache,size=100M,uuid=${uuid_gpt_cache};" \
+-	"name=persist,size=4M,uuid=${uuid_gpt_persist};" \
+-	"name=userdata,size=-,uuid=${uuid_gpt_userdata};\0" \
+ 
+ #define CONFIG_PREBOOT
+ 
+ #define CONFIG_ANDROID_BOOT_IMAGE
+ #define CONFIG_SYS_BOOT_RAMDISK_HIGH
+ 
+-#undef CONFIG_BOOTCOMMAND
+-#define CONFIG_BOOTCOMMAND \
+-	"mmc read 0x61000000 0x8000 0x5000;" \
+-	"bootm 0x61000000" \
+ 
+ /* Enable atags */
+ #define CONFIG_SYS_BOOTPARAMS_LEN	(64*1024)
+-- 
+2.7.4
+

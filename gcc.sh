@@ -25,7 +25,7 @@ DIR=$PWD
 
 mkdir -p ${DIR}/build/dl
 gcc_dir="${DIR}/build/dl"
-toolchain=$1
+#toolchain=$1
 
 dl_gcc_generic () {
 	WGET="wget -c --directory-prefix=${gcc_dir}/"

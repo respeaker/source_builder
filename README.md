@@ -1,12 +1,12 @@
 ## Usage
+build u-boot image:
+
+	build/mk-uboot.sh respeaker
 
 build kernel image:
 
-	build/mk-kernel.sh rk3288-evb
+	build/mk-kernel.sh respeaker
     
-build u-boot image:
-
-	build/mk-uboot.sh rk3288-evb
     
 build rootfs image:
 
