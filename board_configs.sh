@@ -9,7 +9,7 @@ DIR=$PWD
 
 case ${BOARD} in
 	"respeaker")
-		DEFCONFIG=rockchip_linux_defconfig
+		DEFCONFIG=respeaker_defconfig
 		UBOOT_DEFCONFIG=evb-rk3229_defconfig
 		DTB=rk3229-respeaker-v2.dtb
 		ARCH=arm
