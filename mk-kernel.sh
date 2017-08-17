@@ -134,7 +134,7 @@ make -j8
 fakeroot make  ${build_opts}  bindeb-pkg
 cd ${LOCALPATH}
 
-KERNEL_VERSION=$(cat ${LOCALPATH}/kernel/include/config/kernel.release)
+KERNEL_VERSION=$(cat ${LOCALPATH}/kernel-src/include/config/kernel.release)
 
 if version_gt "${KERNEL_VERSION}" "4.5"; then
 	if [ "${DTB_MAINLINE}" ]; then
