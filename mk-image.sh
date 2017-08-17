@@ -48,7 +48,7 @@ done
 OPTIND=$OLD_OPTIND
 
 if [ ! -e ${EXTLINUXPATH}/${CHIP}.conf ]; then
-	CHIP="rk3288"
+	CHIP="rk322x"
 fi
 
 if [ ! $CHIP ] && [ ! $TARGET ]; then

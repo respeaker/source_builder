@@ -14,11 +14,4 @@ build rootfs image:
 
 build one system image:
 
-	build/mk-image.sh -c rk3288 -t system -s 4000 -r rk-rootfs-build/linaro-rootfs.img
-
-update image: 
-
-	eMMC: build/flash_tool.sh   -c rk3288 -p system  -i  out/system.img
-	sdcard: build/flash_tool.sh -c rk3288  -d /dev/sdb -p system  -i  out/system.img 
-
-Need to boot into maskrom(If booting into rkusb, it won't work) before flashing to eMMC.
+	build/mk-image.sh -c rk322x -t system -s 4000 -r rk-rootfs-build/linaro-rootfs.img
