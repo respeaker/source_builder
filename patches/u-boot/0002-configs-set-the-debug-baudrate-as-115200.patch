@@ -1,0 +1,25 @@
+From 265e7f7a03d4f7e1f2006cd2c6907b969ab6ea92 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 8 Aug 2017 09:03:25 +0800
+Subject: [PATCH] configs: set the debug baudrate as 115200
+
+---
+ configs/evb-rk3229_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/evb-rk3229_defconfig b/configs/evb-rk3229_defconfig
+index 0c3b6f7..960ae2f 100644
+--- a/configs/evb-rk3229_defconfig
++++ b/configs/evb-rk3229_defconfig
+@@ -34,7 +34,7 @@ CONFIG_PINCTRL_ROCKCHIP_RK322X=y
+ # CONFIG_SPL_PINCTRL_FULL is not set
+ CONFIG_RAM=y
+ CONFIG_SPL_RAM=y
+-CONFIG_BAUDRATE=1500000
++CONFIG_BAUDRATE=115200
+ CONFIG_DEBUG_UART=y
+ CONFIG_DEBUG_UART_BASE=0x11030000
+ CONFIG_DEBUG_UART_CLOCK=24000000
+-- 
+2.7.4
+
