@@ -109,6 +109,7 @@ build_u_boot () {
 		tools/mkimage -n ${CHIP} -T \
 			rksd -d DDRTEMP idbloader.img 
 		cat  ${DIR}/rkbin/rk32/rk322x_miniloader_v2.32.bin >> idbloader.img
+		mkdir -p ${OUT}/u-boot/
 		cp idbloader.img ${OUT}/u-boot/
 		${DIR}/rkbin/tools/loaderimage --pack --uboot u-boot-dtb.bin uboot.img 0x60000000
 		cp uboot.img ${OUT}/u-boot/
