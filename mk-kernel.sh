@@ -68,6 +68,8 @@ git_generic () {
 	fi
 	git clone --share  ${LOCALPATH}/kernel  ${LOCALPATH}/kernel-src
 	cd ${LOCALPATH}/kernel-src
+	#we use this tag
+	git checkout release-20170705 
 	echo "-----------------------------"
 }
 git="git am"
