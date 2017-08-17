@@ -1,0 +1,528 @@
+From 7c1888d3f2d50e960b5349214898a15038539af8 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 8 Aug 2017 14:49:45 +0800
+Subject: [PATCH 08/11] arch: arm: dts: add respeaker v2 board device tree
+
+---
+ arch/arm/boot/dts/Makefile                |   1 +
+ arch/arm/boot/dts/rk3229-respeaker-v2.dts | 496 ++++++++++++++++++++++++++++++
+ 2 files changed, 497 insertions(+)
+ create mode 100644 arch/arm/boot/dts/rk3229-respeaker-v2.dts
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index c5397ec..7b59fd4 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -520,6 +520,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
+ 	rk3188-radxarock.dtb \
+ 	rk3228-evb.dtb \
+ 	rk3229-echo-v10.dtb \
++	rk3229-respeaker-v2.dtb \
+ 	rk3229-evb.dtb \
+ 	rk3229-gva-sdk.dtb \
+ 	rk3288-evb-act8846.dtb \
+diff --git a/arch/arm/boot/dts/rk3229-respeaker-v2.dts b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
+new file mode 100644
+index 0000000..a36238f
+--- /dev/null
++++ b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
+@@ -0,0 +1,496 @@
++/*
++ * Copyright (c) 2017 Seeed Technology Co., Ltd
++ *
++ * This file is dual-licensed: you can use it either under the terms
++ * of the GPL or the X11 license, at your option. Note that this dual
++ * licensing only applies to this file, and not this project as a
++ * whole.
++ *
++ *  a) This file is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of the
++ *     License, or (at your option) any later version.
++ *
++ *     This file is distributed in the hope that it will be useful,
++ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *     GNU General Public License for more details.
++ *
++ *  Or, alternatively,
++ *
++ *  b) Permission is hereby granted, free of charge, to any person
++ *     obtaining a copy of this software and associated documentation
++ *     files (the "Software"), to deal in the Software without
++ *     restriction, including without limitation the rights to use,
++ *     copy, modify, merge, publish, distribute, sublicense, and/or
++ *     sell copies of the Software, and to permit persons to whom the
++ *     Software is furnished to do so, subject to the following
++ *     conditions:
++ *
++ *     The above copyright notice and this permission notice shall be
++ *     included in all copies or substantial portions of the Software.
++ *
++ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ *     OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++/dts-v1/;
++
++#include "rk322x.dtsi"
++#include "rk3229-cpu-opp.dtsi"
++#include "rk322x-android.dtsi"
++
++/ {
++	model = "RK3229 ReSpeaker Board V1.0";
++	compatible = "rockchip,rk3229-echo", "rockchip,rk3229";
++
++	memory@60000000 {
++		device_type = "memory";
++		reg = <0x60000000 0x40000000>;
++	};
++
++	sdio_pwrseq: sdio-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		clocks = <&rk805 1>;
++		clock-names = "ext_clock";
++		pinctrl-names = "default";
++		pinctrl-0 = <&wifi_enable_h>;
++
++		/*
++		 * On the module itself this is one of these (depending
++		 * on the actual card populated):
++		 * - SDIO_RESET_L_WL_REG_ON
++		 * - PDN (power down when low)
++		 */
++		reset-gpios = <&gpio2 26 GPIO_ACTIVE_LOW>; /* GPIO2_D2 */
++	};
++
++	vcc_host: vcc-host-regulator {
++		compatible = "regulator-fixed";
++		enable-active-high;
++		gpio = <&gpio3 20 GPIO_ACTIVE_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&host_vbus_drv>;
++		regulator-name = "vcc_host";
++		regulator-always-on;
++		regulator-boot-on;
++	};
++
++	wireless-bluetooth {
++		compatible = "bluetooth-platdata";
++		clocks = <&rk805 1>;
++		clock-names = "ext_clock";
++		uart_rts_gpios = <&gpio3 6 GPIO_ACTIVE_LOW>;
++		pinctrl-names = "default", "rts_gpio";
++		pinctrl-0 = <&uart11_rts>;
++		pinctrl-1 = <&uart11_rts_gpio>;
++		BT,reset_gpio    = <&gpio2 29 GPIO_ACTIVE_HIGH>;
++		BT,wake_gpio     = <&gpio3 27 GPIO_ACTIVE_HIGH>;
++		BT,wake_host_irq = <&gpio3 26 GPIO_ACTIVE_HIGH>;
++		status = "okay";
++	};
++
++	wireless-wlan {
++		compatible = "wlan-platdata";
++		rockchip,grf = <&grf>;
++		wifi_chip_type = "ap6212";
++		sdio_vref = <1800>;
++		WIFI,host_wake_irq = <&gpio0 28 GPIO_ACTIVE_HIGH>;
++		status = "okay";
++	};
++
++	gpio_keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		autorepeat;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&pwr_key>;
++
++		power_key: power-key {
++			label = "GPIO Key Power";
++			gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
++			linux,code = <116>;
++			debounce-interval = <100>;
++			wakeup-source;
++		};
++	};
++	fiq-debugger {
++	       status = "disabled";
++	};
++
++	/* rk805 pmic sleep/poweroff */
++	gpio_poweroff {
++	       compatible = "gpio-poweroff";
++	       gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>; 
++	       status = "okay";
++	};
++
++
++	codec_pcm: codec_pcm {
++		compatible = "linux,snd-soc-dummy";
++		#sound-dai-cells = <0>;
++	};
++
++	codec_rk3228: codec_rk3228@12010000 {
++		compatible = "rockchip,rk3228-codec";
++		reg = <0x12010000 0x1000>;
++		clocks = <&cru SCLK_I2S_OUT>;
++		clock-names = "mclk";
++		spk_ctl_io = <&gpio1 RK_PA3 GPIO_ACTIVE_HIGH>;
++		#sound-dai-cells = <0>;
++	};
++
++
++	sound0: sound@0 {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "seeed-8mic-voicecard";
++		simple-audio-card,mclk-fs = <256>;
++		status = "okay";
++
++		simple-audio-card,dai-link@0 {
++			format = "i2s";
++			cpu {
++				sound-dai = <&i2s1>;
++				system-clock-frequency = <24000000>;
++			};
++
++			codec {
++				sound-dai = <&ac108_0>;
++				system-clock-frequency = <24000000>;
++			};
++		};
++		simple-audio-card,dai-link@1 {
++			format = "i2s";
++			cpu {
++				sound-dai = <&i2s1>;
++				system-clock-frequency = <24000000>;
++			};
++
++			codec {
++				system-clock-frequency = <24000000>;
++				sound-dai = <&ac108_1>;
++			};
++		};
++		simple-audio-card,dai-link@2 {
++			format = "i2s";
++			cpu {
++				sound-dai = <&i2s1>;
++			};
++
++			codec {
++				sound-dai = <&codec_rk3228>;
++			};
++		};
++	};
++
++	sound1: sound@1{
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "bluetooth-a2dp";
++		simple-audio-card,mclk-fs = <256>;
++		status = "okay";
++		simple-audio-card,dai-link@0 {
++			format = "i2s";
++			cpu {
++				sound-dai = <&i2s2>;
++				system-clock-frequency = <24000000>;
++			};
++
++			codec {
++				system-clock-frequency = <24000000>;
++				sound-dai = <&codec_pcm>;
++			};
++		};
++
++	};
++};
++
++&gpu {
++	status = "okay";
++	mali-supply = <&vdd_logic>;
++};
++
++&i2c0 {
++	status = "okay";
++
++
++
++	rk805: rk805@18 {
++		compatible = "rockchip,rk805";
++		status = "okay";
++		reg = <0x18>;
++               gpios = <&gpio1 12 GPIO_ACTIVE_HIGH>, /*GPIO_B4*/
++                       <&gpio0 30 GPIO_ACTIVE_LOW>; /*GPIO_D6*/
++		interrupt-parent = <&gpio1>;
++		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
++		spinctrl-names = "default";
++		pinctrl-0 = <&pmic_int_l>;
++		rockchip,system-power-controller;
++		wakeup-source;
++		gpio-controller;
++		#gpio-cells = <2>;
++		#clock-cells = <1>;
++		clock-output-names = "xin32k", "rk805-clkout2";
++
++		rtc {
++			status = "okay";
++		};
++
++		pwrkey {
++			status = "okay";
++		};
++
++		gpio {
++			status = "okay";
++		};
++
++		regulators {
++			compatible = "rk805-regulator";
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			vdd_arm: RK805_DCDC1@0 {
++				regulator-compatible = "RK805_DCDC1";
++				regulator-name = "vdd_arm";
++				regulator-min-microvolt = <712500>;
++				regulator-max-microvolt = <1450000>;
++				regulator-initial-mode = <0x1>;
++				regulator-ramp-delay = <12500>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-mode = <0x2>;
++					regulator-on-in-suspend;
++					regulator-suspend-microvolt = <950000>;
++				};
++			};
++
++			vdd_logic: RK805_DCDC2@1 {
++				regulator-compatible = "RK805_DCDC2";
++				regulator-name = "vdd_logic";
++				regulator-min-microvolt = <712500>;
++				regulator-max-microvolt = <1450000>;
++				regulator-initial-mode = <0x1>;
++				regulator-ramp-delay = <12500>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-mode = <0x2>;
++					regulator-on-in-suspend;
++					regulator-suspend-microvolt = <1000000>;
++				};
++			};
++
++			vcc_ddr: RK805_DCDC3@2 {
++				regulator-compatible = "RK805_DCDC3";
++				regulator-name = "vcc_ddr";
++				regulator-initial-mode = <0x1>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-mode = <0x2>;
++					regulator-on-in-suspend;
++				};
++			};
++
++			vcc_io: RK805_DCDC4@3 {
++				regulator-compatible = "RK805_DCDC4";
++				regulator-name = "vcc_io";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-initial-mode = <0x1>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-mode = <0x2>;
++					regulator-on-in-suspend;
++					regulator-suspend-microvolt = <3300000>;
++				};
++			};
++
++			vcc_18: RK805_LDO1@4 {
++				regulator-compatible = "RK805_LDO1";
++				regulator-name = "vcc_18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-on-in-suspend;
++					regulator-suspend-microvolt = <1800000>;
++				};
++			};
++
++			vcc_18emmc: RK805_LDO2@5 {
++				regulator-compatible = "RK805_LDO2";
++				regulator-name = "vcc_18emmc";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-on-in-suspend;
++					regulator-suspend-microvolt = <1800000>;
++				};
++			};
++
++			vdd_10: RK805_LDO3@6 {
++				regulator-compatible = "RK805_LDO3";
++				regulator-name = "vdd_10";
++				regulator-min-microvolt = <1000000>;
++				regulator-max-microvolt = <1000000>;
++				regulator-boot-on;
++				regulator-always-on;
++				regulator-state-mem {
++					regulator-on-in-suspend;
++					regulator-suspend-microvolt = <1000000>;
++				};
++			};
++		};
++	};
++};
++
++&cpu0 {
++	cpu-supply = <&vdd_arm>;
++};
++
++&io_domains {
++	status = "okay";
++
++	vccio1-supply = <&vcc_io>;
++	vccio2-supply = <&vcc_io>;
++	vccio4-supply = <&vcc_io>;
++};
++
++&pinctrl {
++	pmic {
++		pmic_int_l: pmic-int-l {
++			rockchip,pins = <1 12 RK_FUNC_GPIO &pcfg_pull_up>; /* gpio1_b4 */
++		};
++	};
++
++	sdio-pwrseq {
++		wifi_enable_h: wifi-enable-h {
++			rockchip,pins = <2 26 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++
++	usb {
++		host_vbus_drv: host-vbus-drv {
++			rockchip,pins = <3 20 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++
++	keys {
++		pwr_key: pwr-key {
++			rockchip,pins = <3 23 RK_FUNC_GPIO &pcfg_pull_up>;
++		};
++	};
++	pcm {
++		pcm_io: pcm-io {
++			rockchip,pins =  <0 26 RK_FUNC_2 &pcfg_pull_none>,
++					 <0 27 RK_FUNC_2 &pcfg_pull_none>,
++					 <3 11 RK_FUNC_1 &pcfg_pull_none>,
++					 <3 12 RK_FUNC_1 &pcfg_pull_none>;
++		};
++	};
++
++};
++
++&sdio {
++	status = "okay";
++	mmc-pwrseq = <&sdio_pwrseq>;
++	assigned-clocks = <&cru SCLK_SDIO_SRC>;
++	assigned-clock-parents = <&xin24m>;
++};
++
++&u2phy0_host {
++	phy-supply = <&vcc_host>;
++};
++&hdmi {
++	status = "disabled";
++};
++
++&hdmi_phy {
++	status = "disabled";
++};
++&i2s1 {
++	#sound-dai-cells = <0>;
++	status = "okay";
++};
++&i2c1 {
++	status = "okay";
++
++	ac108_0: ac08@3b {
++		#sound-dai-cells = <0>;
++		compatible = "x-power,ac108_0";
++		clocks = <&xin24m>;
++		clock-names = "mclk";
++		reg = <0x3b>;
++		data-protocol = <0>;
++		init-data =  /bits/ 8 <
++		/*reg val*/
++		0x39  0x03  /*0x39:TX1 Channel1 ~Channel8 (slot) enable:two ch*/
++		0x3a  0x00  /*0x3A:TX1 Channel1 ~Channel8 (slot) enable*/
++		0x41  0x03  /*0x41:TX2 Channel1 ~Channel8 (slot) enable:two ch*/
++		0x42  0x00  /*0x42:TX2 Channel1 ~Channel8 (slot) enable*/
++		0x38  0x01  /*0x38:TX1 Channel (slot) number Select for each output:two 2ch*/
++		0x40  0x01  /*0x40:TX1 Channel (slot) number Select for each output:two 2ch*/
++		0x3c  0x04  /*0x3c:  TX1 Channel Mapping Control 1:ch1 ch2*/
++		0x3d  0x00  /*0x3d:  TX1 Channel Mapping Control 2*/
++		0x3e  0x00  /*0x3e:  TX1 Channel Mapping Control 3*/
++		0x3f  0x00  /*0x3f:  TX1 Channel Mapping Control 4*/
++		0x44  0x0e  /*0x44:  TX2 Channel Mapping Control 1:ch3 ch4*/
++		0x45  0x00  /*0x45:  TX2 Channel Mapping Control 2*/
++		0x46  0x00  /*0x46:  TX2 Channel Mapping Control 3*/
++		0x47  0x00  /*0x47:  TX2 Channel Mapping Control 4*/
++		0xad  0x50
++		>;
++	};
++	ac108_1: ac08@35 {
++		#sound-dai-cells = <0>;
++		compatible = "x-power,ac108_1";
++		clocks = <&xin24m>;
++		clock-names = "mclk";
++		reg = <0x35>;
++		data-protocol = <0>;
++		init-data =  /bits/ 8 <
++		/*reg val*/
++		0x39  0x03  /*0x39:TX1 Channel1 ~Channel8 (slot) enable:two ch*/
++		0x3a  0x00  /*0x3A:TX1 Channel1 ~Channel8 (slot) enable*/
++		0x41  0x03  /*0x41:TX2 Channel1 ~Channel8 (slot) enable:two ch*/
++		0x42  0x00  /*0x42:TX2 Channel1 ~Channel8 (slot) enable*/
++		0x38  0x01  /*0x38:TX1 Channel (slot) number Select for each output:two 2ch*/
++		0x40  0x01  /*0x40:TX1 Channel (slot) number Select for each output:two 2ch*/
++		0x3c  0x04  /*0x3c:  TX1 Channel Mapping Control 1:ch1 ch2*/
++		0x3d  0x00  /*0x3d:  TX1 Channel Mapping Control 2*/
++		0x3e  0x00  /*0x3e:  TX1 Channel Mapping Control 3*/
++		0x3f  0x00  /*0x3f:  TX1 Channel Mapping Control 4*/
++		0x44  0x0e  /*0x44:  TX2 Channel Mapping Control 1:ch3 ch4*/
++		0x45  0x00  /*0x45:  TX2 Channel Mapping Control 2*/
++		0x46  0x00  /*0x46:  TX2 Channel Mapping Control 3*/
++		0x47  0x00  /*0x47:  TX2 Channel Mapping Control 4*/
++		0xad  0x50
++		>;
++	};
++};
++&i2s1 {
++	#sound-dai-cells = <0>;
++	status = "okay";
++	rockchip,capture-channels=<8>;
++};
++&i2s2 {
++	#sound-dai-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcm_io>;
++	status = "okay";
++};
++
+-- 
+2.7.4
+

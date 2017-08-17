@@ -1,0 +1,25 @@
+From 73bccc08c8f4026aa41262570769742efea0dd8a Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 8 Aug 2017 14:47:30 +0800
+Subject: [PATCH 06/11] usb: dwc2: gadget: fix usb gadget a bug
+
+---
+ drivers/usb/dwc2/gadget.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index af46adf..d93738a 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -848,7 +848,7 @@ static int dwc2_hsotg_ep_queue(struct usb_ep *ep, struct usb_request *req,
+ 		req->zero, req->short_not_ok);
+ 
+ 	/* Prevent new request submission when controller is suspended */
+-	if (hs->lx_state == DWC2_L2) {
++	if (hs->bus_suspended) {
+ 		dev_dbg(hs->dev, "%s: don't submit request while suspended\n",
+ 				__func__);
+ 		return -EAGAIN;
+-- 
+2.7.4
+

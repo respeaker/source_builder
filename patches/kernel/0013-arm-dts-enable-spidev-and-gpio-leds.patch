@@ -1,0 +1,90 @@
+From d284bd2c5a948c70c5074ff4e45beb2d323ff872 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 15 Aug 2017 19:00:33 +0800
+Subject: [PATCH 2/2] arm: dts: enable spidev and gpio leds
+
+---
+ arch/arm/boot/dts/rk3229-respeaker-v2.dts | 51 ++++++++++++++++++++++++++-----
+ 1 file changed, 43 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/boot/dts/rk3229-respeaker-v2.dts b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
+index a36238f..fdfb3a5 100644
+--- a/arch/arm/boot/dts/rk3229-respeaker-v2.dts
++++ b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
+@@ -112,16 +112,33 @@
+ 		autorepeat;
+ 
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&pwr_key>;
++		pinctrl-0 = <&user_key>;
+ 
+-		power_key: power-key {
+-			label = "GPIO Key Power";
+-			gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
+-			linux,code = <116>;
++		key_1: key-1 {
++			label = "GPIO User Key";
++			gpios = <&gpio3 25 GPIO_ACTIVE_LOW>;
++			linux,code = <194>;
+ 			debounce-interval = <100>;
+ 			wakeup-source;
+ 		};
+ 	};
++        gpio-leds {
++                compatible = "gpio-leds";
++
++                heartbeat {
++                        gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;
++                        label = "respeaker2:blue:state1";
++                        linux,default-trigger = "heartbeat";
++                };
++
++                mmc {
++                        gpios = <&gpio3 21 GPIO_ACTIVE_LOW>;
++                        label = "respeaker2:blue:state2";
++                        linux,default-trigger = "mmc0";
++                };
++        };
++
++
+ 	fiq-debugger {
+ 	       status = "disabled";
+ 	};
+@@ -390,8 +407,8 @@
+ 	};
+ 
+ 	keys {
+-		pwr_key: pwr-key {
+-			rockchip,pins = <3 23 RK_FUNC_GPIO &pcfg_pull_up>;
++		user_key: user-key {
++			rockchip,pins = <3 25 RK_FUNC_GPIO &pcfg_pull_up>;
+ 		};
+ 	};
+ 	pcm {
+@@ -493,4 +510,22 @@
+ 	pinctrl-0 = <&pcm_io>;
+ 	status = "okay";
+ };
+-
++&spi0{
++	dmas = <&pdma 8>, <&pdma 9>;
++	dma-names = "tx", "rx";
++	status = "okay";
++        spi0_0 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                spi-max-frequency = <24000000>;
++                reg = <0>;
++                compatible = "rohm,dh2228fv";
++        };
++        spi0_1 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                spi-max-frequency = <24000000>;
++                reg = <1>;
++                compatible = "rohm,dh2228fv";
++        };
++};
+-- 
+2.7.4
+

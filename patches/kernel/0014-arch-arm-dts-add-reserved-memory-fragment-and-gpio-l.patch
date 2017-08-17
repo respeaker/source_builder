@@ -1,0 +1,70 @@
+From de0ec1f42687e428a5debe1d55e7809552f9ca29 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Thu, 17 Aug 2017 18:27:07 +0800
+Subject: [PATCH 1/2] arch: arm: dts: add reserved-memory fragment and
+ gpio-leds pinctl
+
+---
+ arch/arm/boot/dts/rk3229-respeaker-v2.dts | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/rk3229-respeaker-v2.dts b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
+index fdfb3a5..a0b74ba 100644
+--- a/arch/arm/boot/dts/rk3229-respeaker-v2.dts
++++ b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
+@@ -54,7 +54,16 @@
+ 		device_type = "memory";
+ 		reg = <0x60000000 0x40000000>;
+ 	};
+-
++        reserved-memory {
++              #address-cells = <1>;
++               #size-cells = <1>;
++               ranges;
++
++               trust_reserved: trust@0x68400000 {
++                       reg = <0x68400000 0xE00000>;
++                       no-map;
++               };
++       };
+ 	sdio_pwrseq: sdio-pwrseq {
+ 		compatible = "mmc-pwrseq-simple";
+ 		clocks = <&rk805 1>;
+@@ -124,17 +133,21 @@
+ 	};
+         gpio-leds {
+                 compatible = "gpio-leds";
++                pinctrl-names = "default";
++                pinctrl-0 = <&gpio_leds>;
+ 
+                 heartbeat {
+                         gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;
+                         label = "respeaker2:blue:state1";
+                         linux,default-trigger = "heartbeat";
++			default-state = "off";
+                 };
+ 
+                 mmc {
+                         gpios = <&gpio3 21 GPIO_ACTIVE_LOW>;
+                         label = "respeaker2:blue:state2";
+                         linux,default-trigger = "mmc0";
++			default-state = "off";
+                 };
+         };
+ 
+@@ -419,6 +432,12 @@
+ 					 <3 12 RK_FUNC_1 &pcfg_pull_none>;
+ 		};
+ 	};
++	gpio {
++		gpio_leds: gpio-leds {
++			rockchip,pins = <1 7 RK_FUNC_GPIO &pcfg_pull_none>,
++					<3 21 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
+ 
+ };
+ 
+-- 
+2.7.4
+

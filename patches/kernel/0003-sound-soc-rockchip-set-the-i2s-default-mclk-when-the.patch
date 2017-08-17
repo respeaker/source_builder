@@ -1,0 +1,27 @@
+From db032e5be1dd69801c65d0b9a4788a294b462fa3 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 8 Aug 2017 14:44:33 +0800
+Subject: [PATCH 03/11] sound: soc: rockchip: set the i2s default mclk when the
+ driver is probe
+
+---
+ sound/soc/rockchip/rockchip_i2s.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 2c7e5cc..0923a86 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -614,6 +614,9 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2s->mclk);
+ 	}
+ 
++	clk_prepare_enable(i2s->mclk);
++	clk_set_rate(i2s->mclk, 11289600);
++
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	regs = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(regs))
+-- 
+2.7.4
+

@@ -1,0 +1,44 @@
+From 4553f53285ab4072f1ef64e57e3b30189a5da527 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 8 Aug 2017 14:45:27 +0800
+Subject: [PATCH 04/11] sound: soc: add dt name to alsa dummy driver
+
+---
+ sound/soc/soc-utils.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/sound/soc/soc-utils.c b/sound/soc/soc-utils.c
+index 53dd085..7561ff4 100644
+--- a/sound/soc/soc-utils.c
++++ b/sound/soc/soc-utils.c
+@@ -19,6 +19,8 @@
+ #include <sound/pcm.h>
+ #include <sound/pcm_params.h>
+ #include <sound/soc.h>
++#include <linux/module.h>
++
+ 
+ int snd_soc_calc_frame_size(int sample_size, int channels, int tdm_slots)
+ {
+@@ -160,9 +162,18 @@ static int snd_soc_dummy_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id soc_dummy_ids[] = {
++    { .compatible = "linux,snd-soc-dummy", },
++    { }
++};
++MODULE_DEVICE_TABLE(of, soc_dummy_ids);
++#endif
++
+ static struct platform_driver soc_dummy_driver = {
+ 	.driver = {
+ 		.name = "snd-soc-dummy",
++		.of_match_table = of_match_ptr(soc_dummy_ids),
+ 	},
+ 	.probe = snd_soc_dummy_probe,
+ 	.remove = snd_soc_dummy_remove,
+-- 
+2.7.4
+
