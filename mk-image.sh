@@ -8,8 +8,9 @@ CHIP=""
 TARGET=""
 SIZE=""
 ROOTFS_PATH=""
-
+DATE=`date +%Y%m%d`
 PATH=$PATH:$TOOLPATH
+IMAGE_NAME=respeaker-v2-stretch-${DATE}
 
 source $LOCALPATH/build/partitions.sh
 
@@ -72,55 +73,67 @@ generate_boot_image() {
 }
 
 generate_system_image() {
-	SYSTEM=${OUT}/system.img
+	SYSTEM=${OUT}/${IMAGE_NAME}.img
 	rm -rf ${SYSTEM}
 
 	echo "Generate System image : ${SYSTEM} !"
 
 	dd if=/dev/zero of=${SYSTEM} bs=1M count=0 seek=$SIZE
 
+	echo "parted -s ${SYSTEM} mklabel gpt"
 	parted -s ${SYSTEM} mklabel gpt
+	
+	echo "parted -s ${SYSTEM} unit s mkpart loader1 ${LOADER1_START} $(expr ${RESERVED1_START} - 1)"
 	parted -s ${SYSTEM} unit s mkpart loader1 ${LOADER1_START} $(expr ${RESERVED1_START} - 1)
+	
+	echo "parted -s ${SYSTEM} unit s mkpart reserved1 ${RESERVED1_START} $(expr ${RESERVED2_START} - 1)"
 	parted -s ${SYSTEM} unit s mkpart reserved1 ${RESERVED1_START} $(expr ${RESERVED2_START} - 1)
+
+	echo "parted -s ${SYSTEM} unit s mkpart reserved2 ${RESERVED2_START} $(expr ${LOADER2_START} - 1)"
 	parted -s ${SYSTEM} unit s mkpart reserved2 ${RESERVED2_START} $(expr ${LOADER2_START} - 1)
+
+	echo "parted -s ${SYSTEM} unit s mkpart loader2 ${LOADER2_START} $(expr ${ATF_START} - 1)"
 	parted -s ${SYSTEM} unit s mkpart loader2 ${LOADER2_START} $(expr ${ATF_START} - 1)
+
+	echo "parted -s ${SYSTEM} unit s mkpart atf ${ATF_START} $(expr ${BOOT_START} - 1)"
 	parted -s ${SYSTEM} unit s mkpart atf ${ATF_START} $(expr ${BOOT_START} - 1)
+
+	echo "parted -s ${SYSTEM} unit s mkpart boot ${BOOT_START} $(expr ${ROOTFS_START} - 1)"
 	parted -s ${SYSTEM} unit s mkpart boot ${BOOT_START} $(expr ${ROOTFS_START} - 1)
+
+	echo "parted -s ${SYSTEM} set 6 boot on"
 	parted -s ${SYSTEM} set 6 boot on
+
+	echo "parted -s ${SYSTEM} unit s mkpart root ${ROOTFS_START} 100%"
 	parted -s ${SYSTEM} unit s mkpart root ${ROOTFS_START} 100%
 
-	# burn u-boot
-	if [ "$CHIP" == "rk3288" ] || [ "$CHIP" == "rk322x" ] || [ "$CHIP" == "rk3036" ]; then
-		dd if=${OUT}/u-boot/idbloader.img of=${SYSTEM} seek=${LOADER1_START} conv=notrunc
-	elif [ "$CHIP" == "rk3399" ]; then
-		dd if=${OUT}/u-boot/idbloader.img of=${SYSTEM} seek=${LOADER1_START} conv=notrunc
+	#burn idbloader
+	echo "dd if=${OUT}/u-boot/idbloader.img of=${SYSTEM} seek=${LOADER1_START} conv=notrunc"
+	dd if=${OUT}/u-boot/idbloader.img of=${SYSTEM} seek=${LOADER1_START} conv=notrunc
+	
+	#burn  u-boot
+	echo "dd if=${OUT}/u-boot/uboot.img of=${SYSTEM} seek=${LOADER2_START} conv=notrunc"
+	dd if=${OUT}/u-boot/uboot.img of=${SYSTEM} seek=${LOADER2_START} conv=notrunc
 
-		dd if=${OUT}/u-boot/uboot.img of=${SYSTEM} seek=${LOADER2_START} conv=notrunc
-		dd if=${OUT}/u-boot/trust.img of=${SYSTEM} seek=${ATF_START} conv=notrunc
-	elif [ "$CHIP" == "rk3328" ]; then
-		dd if=${OUT}/u-boot/idbloader.img of=${SYSTEM} seek=${LOADER1_START} conv=notrunc
+	#burn trust.img
+	echo "dd if=${LOCALPATH}}/build/binary/trust.img  of=${SYSTEM} seek=${ATF_START} conv=notrunc"
+	dd if=${LOCALPATH}/build/binary/trust.img of=${SYSTEM} seek=${ATF_START} conv=notrunc
 
-		dd if=${OUT}/u-boot/uboot.img of=${SYSTEM} seek=${LOADER2_START} conv=notrunc
-		dd if=${OUT}/u-boot/trust.img of=${SYSTEM} seek=${ATF_START} conv=notrunc
-	fi
+	#burn kernel
+	echo "dd if=${OUT}/boot.img of=${SYSTEM} conv=notrunc seek=${BOOT_START} "
+	dd if=${OUT}/boot.img of=${SYSTEM} conv=notrunc seek=${BOOT_START} status=progress
 
-	# burn boot image
-	if [ ! -e ${OUT}/boot.img ]; then
-		echo -e "\e[31m CAN'T FIND BOOT IMAGE \e[0m"
-		exit
-	fi
-	dd if=${OUT}/boot.img of=${SYSTEM} conv=notrunc seek=${BOOT_START}
+	#burn rootfs
+	echo "dd if=${ROOTFS_PATH} of=${SYSTEM} seek=${ROOTFS_START}"
+	dd if=${ROOTFS_PATH} of=${SYSTEM} seek=${ROOTFS_START} status=progress
 
-	# burn rootfs image
-	if [ ! -e ${ROOTFS_PATH} ]; then
-		echo -e "\e[31m CAN'T FIND ROOTFS IMAGE \e[0m"
-		exit
-	fi
-	dd if=${ROOTFS_PATH} of=${SYSTEM} seek=${ROOTFS_START}
+	#compress the image
+	echo "7z a ${OUT}/${IMAGE_NAME}.7z ${SYSTEM}"
+	7z a ${OUT}/${IMAGE_NAME}.7z ${SYSTEM}
 }
 
 if [ "$TARGET" = "boot" ]; then
 	generate_boot_image
-elif [ "$TARGET" == "system" ]; then
+elif [ "$TARGET" == "system" ] || [ "$CHIP" == "rk322x" ]; then
 	generate_system_image
 fi
