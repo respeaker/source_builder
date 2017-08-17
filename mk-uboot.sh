@@ -60,8 +60,10 @@ build_u_boot () {
 	case "${board}" in
 	respeaker)
 		echo "patch -p1 < \"${p_dir}/0001-rockchip-rk322x-remove-default-parts-and-CONFIG_BOOT.patch\""
-
 		${git} "${p_dir}/0001-rockchip-rk322x-remove-default-parts-and-CONFIG_BOOT.patch"
+
+		echo "patch -p1 < \"${p_dir}/0002-configs-set-the-debug-baudrate-as-115200.patch\""		
+		${git} "${p_dir}/0002-configs-set-the-debug-baudrate-as-115200.patch"
 		;;
 	esac
 
@@ -102,10 +104,11 @@ build_u_boot () {
 	fi
 	make ARCH=arm CROSS_COMPILE="${CC}" ${UBOOT_DEFCONFIG} all
 
-	if [ "${CHIP}" = "rk3288" ] || [ "${CHIP}" = "rk322x" ] || [ "${CHIP}" = "rk3036" ]; then
+	if [ "${CHIP}" = "rk322x" ]; then
+		dd if=${DIR}/rkbin/rk32/rk322x_ddr_300MHz_v1.04.bin of=DDRTEMP bs=4 skip=1
 		tools/mkimage -n ${CHIP} -T \
-			rksd -d spl/u-boot-spl-dtb.bin idbloader.img
-		cat u-boot-dtb.bin >>idbloader.img
+			rksd -d DDRTEMP idbloader.img 
+		cat  ${DIR}/rkbin/rk32/rk322x_miniloader_v2.32.bin >> idbloader.img
 		cp idbloader.img ${OUT}/u-boot/
 		${DIR}/rkbin/tools/loaderimage --pack --uboot u-boot-dtb.bin uboot.img 0x60000000
 		cp uboot.img ${OUT}/u-boot/
