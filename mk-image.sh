@@ -1,12 +1,32 @@
 #!/bin/bash -e
-
+#
+# Copyright (c) 2017 Baozhu Zuo  <zuobaozhu@gmail.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 LOCALPATH=$(pwd)
 OUT=${LOCALPATH}/out
 TOOLPATH=${LOCALPATH}/rkbin/tools
 EXTLINUXPATH=${LOCALPATH}/build/extlinux
 CHIP=""
-TARGET=""
+PART=""
 SIZE=""
+TARGET=""
 ROOTFS_PATH=""
 DATE=`date +%Y%m%d`
 PATH=$PATH:$TOOLPATH
@@ -15,7 +35,7 @@ IMAGE_NAME=respeaker-v2-stretch-${DATE}
 source $LOCALPATH/build/partitions.sh
 
 usage() {
-	echo -e "\nUsage: build/mk-image.sh -c rk3288 -t system -s 4000 -r rk-rootfs-build/linaro-rootfs.img \n"
+	echo -e "\nUsage: build/mk-image.sh -c rk322x -t system -i desktop -s 4000 -r  rootfs/linaro-rootfs.img \n"
 	echo -e "       build/mk-image.sh -c rk3288 -t boot\n"
 }
 finish() {
@@ -25,12 +45,15 @@ finish() {
 trap finish ERR
 
 OLD_OPTIND=$OPTIND
-while getopts "c:t:s:r:h" flag; do
+while getopts "c:t:i:s:r:h" flag; do
 	case $flag in
 		c)
 			CHIP="$OPTARG"
 			;;
 		t)
+			PART="$OPTARG"
+			;;
+		i)
 			TARGET="$OPTARG"
 			;;
 		s)
@@ -51,7 +74,7 @@ if [ ! -e ${EXTLINUXPATH}/${CHIP}.conf ]; then
 	CHIP="rk322x"
 fi
 
-if [ ! $CHIP ] && [ ! $TARGET ]; then
+if [ ! $CHIP ] && [ ! $PART ]; then
 	usage
 	exit
 fi
@@ -132,8 +155,17 @@ generate_system_image() {
 	7z a ${OUT}/${IMAGE_NAME}.7z ${SYSTEM}
 }
 
-if [ "$TARGET" = "boot" ]; then
+
+generate_rootfs(){
+	cd $LOCALPATH/rootfs
+	./mk-base-debian.sh
+	./mk-rootfs.sh
+	cd $LOCALPATH
+}
+
+if [ "$PART" = "boot" ]; then
 	generate_boot_image
-elif [ "$TARGET" == "system" ] || [ "$CHIP" == "rk322x" ]; then
+elif [ "$PART" == "system" ] || [ "$CHIP" == "rk322x" ]; then
+	generate_rootfs
 	generate_system_image
 fi
