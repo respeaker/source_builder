@@ -160,6 +160,7 @@ generate_rootfs(){
 	cd $LOCALPATH/rootfs
 	./mk-base-debian.sh
 	./mk-rootfs.sh
+	./mk-rootfs-image.sh
 	cd $LOCALPATH
 }
 
