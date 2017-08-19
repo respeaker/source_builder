@@ -147,6 +147,7 @@ generate_system_image() {
 	dd if=${OUT}/boot.img of=${SYSTEM} conv=notrunc seek=${BOOT_START} status=progress
 
 	#burn rootfs
+	sudo chown $USER:$USER ${ROOTFS_PATH} 
 	echo "dd if=${ROOTFS_PATH} of=${SYSTEM} seek=${ROOTFS_START}"
 	dd if=${ROOTFS_PATH} of=${SYSTEM} seek=${ROOTFS_START} status=progress
 
