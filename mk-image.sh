@@ -158,9 +158,9 @@ generate_system_image() {
 
 generate_rootfs(){
 	cd $LOCALPATH/rootfs
-	./mk-base-debian.sh
-	./mk-rootfs.sh
-	./mk-rootfs-image.sh
+	sudo ./mk-base-debian.sh
+	sudo ./mk-rootfs.sh
+	sudo ./mk-rootfs-image.sh
 	cd $LOCALPATH
 }
 
