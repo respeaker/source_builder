@@ -73,7 +73,7 @@ git_generic () {
 	echo "-----------------------------"
 }
 git="git am"
-if [ ! -f ${LOCALPATH}/.without_patch ] ; then
+if [ ! -f ${LOCALPATH}/.develop ] ; then
 	case "${BOARD}" in
 		respeaker)
 			git_generic
@@ -131,35 +131,33 @@ fi
 cd  ${LOCALPATH}/kernel-src
 make ${DEFCONFIG}
 make -j8
-fakeroot make  ${build_opts}  bindeb-pkg
-cd ${LOCALPATH}
+if [ ! -f ${LOCALPATH}/.develop ] ; then
+	fakeroot make  ${build_opts}  bindeb-pkg
+	cd ${LOCALPATH}
 
-KERNEL_VERSION=$(cat ${LOCALPATH}/kernel-src/include/config/kernel.release)
+	KERNEL_VERSION=$(cat ${LOCALPATH}/kernel-src/include/config/kernel.release)
 
-if version_gt "${KERNEL_VERSION}" "4.5"; then
-	if [ "${DTB_MAINLINE}" ]; then
-		DTB=${DTB_MAINLINE}
+	if version_gt "${KERNEL_VERSION}" "4.5"; then
+		if [ "${DTB_MAINLINE}" ]; then
+			DTB=${DTB_MAINLINE}
+		fi
+	fi
+
+	if [ "${ARCH}" == "arm" ]; then
+		mv ${LOCALPATH}/*.deb "${OUT}/deploy/" || true
+		mv ${LOCALPATH}/*.debian.tar.gz "${OUT}/deploy/" || true
+		mv ${LOCALPATH}/*.dsc "${OUT}/deploy/" || true
+		mv ${LOCALPATH}/*.changes "${OUT}/deploy/" || true
+		mv ${LOCALPATH}/*.orig.tar.gz "${OUT}/deploy/" || true
 	fi
 fi
 
-if [ "${ARCH}" == "arm" ]; then
-	cp ${LOCALPATH}/kernel-src/arch/arm/boot/zImage ${OUT}/kernel/
-	cp ${LOCALPATH}/kernel-src/arch/arm/boot/dts/${DTB} ${OUT}/kernel/
-	mv ${LOCALPATH}/*.deb "${OUT}/deploy/" || true
-	mv ${LOCALPATH}/*.debian.tar.gz "${OUT}/deploy/" || true
-	mv ${LOCALPATH}/*.dsc "${OUT}/deploy/" || true
-	mv ${LOCALPATH}/*.changes "${OUT}/deploy/" || true
-	mv ${LOCALPATH}/*.orig.tar.gz "${OUT}/deploy/" || true
-	
-else
-	cp ${LOCALPATH}/kernel-src/arch/arm64/boot/Image ${OUT}/kernel/
-	cp ${LOCALPATH}/kernel-src/arch/arm64/boot/dts/rockchip/${DTB} ${OUT}/kernel/
-fi
-
+cp ${LOCALPATH}/kernel-src/arch/arm/boot/dts/${DTB} ${OUT}/kernel/
+cp ${LOCALPATH}/kernel-src/arch/arm/boot/zImage ${OUT}/kernel/
 # Change extlinux.conf according board
 sed -e "s,fdt .*,fdt /$DTB,g" \
 	-i ${EXTLINUXPATH}/${CHIP}.conf
-
+cd ${LOCALPATH}
 ./build/mk-image.sh -c ${CHIP} -t boot
 
 echo -e "\e[36m Kernel build success! \e[0m"
