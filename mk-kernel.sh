@@ -124,6 +124,14 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 			echo "patch -p1 < \"${p_dir}/0015-arch-arm-configs-add-leds-trigger-and-cpu-freq.patch\""
 			${git}  "${p_dir}/0015-arch-arm-configs-add-leds-trigger-and-cpu-freq.patch"
 
+			echo "patch -p1 < \"${p_dir}/0016-sd-card-support-different-speed.patch\""
+			${git}  "${p_dir}/0016-sd-card-support-different-speed.patch"
+
+			echo "patch -p1 < \"${p_dir}/0017-Volume-adjust-support-every-channels.patch\""
+			${git}  "${p_dir}/0017-Volume-adjust-support-every-channels.patch"
+
+			echo "patch -p1 < \"${p_dir}/0018-add-Playback-Volume-controls.patch\""
+			${git}  "${p_dir}/0018-add-Playback-Volume-controls.patch"									
 			;;
 		esac
 fi
