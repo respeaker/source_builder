@@ -1,14 +1,14 @@
-From f29c51db0aebb9b279a99f8f978bd91a63c8ddca Mon Sep 17 00:00:00 2001
+From f23e03091ca5b7b639a7bca650942da74c5a7677 Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Tue, 29 Aug 2017 18:51:59 +0800
-Subject: [PATCH 3/3] add Playback Volume controls
+Date: Fri, 1 Sep 2017 10:43:47 +0800
+Subject: [PATCH] sound: codec: rk3228-codec add Playback Volume controls
 
 ---
- sound/soc/codecs/rk3228_codec.c | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ sound/soc/codecs/rk3228_codec.c | 43 ++++++++++++++++-------------------------
+ 1 file changed, 17 insertions(+), 26 deletions(-)
 
 diff --git a/sound/soc/codecs/rk3228_codec.c b/sound/soc/codecs/rk3228_codec.c
-index 33df092..c526321 100755
+index 33df092..472c2d4 100755
 --- a/sound/soc/codecs/rk3228_codec.c
 +++ b/sound/soc/codecs/rk3228_codec.c
 @@ -16,7 +16,7 @@
@@ -57,29 +57,33 @@ index 33df092..c526321 100755
  	regmap_update_bits(rk3228->regmap, DAC_PRECHARGE_CTRL,
  			   DAC_CHARGE_XCHARGE_MASK, DAC_CHARGE_DISCHARGE);
  	mdelay(10);
-@@ -224,11 +235,12 @@ static int rk3228_codec_open_playback(struct snd_soc_codec *codec)
- 
+@@ -225,10 +236,6 @@ static int rk3228_codec_open_playback(struct snd_soc_codec *codec)
  	msleep(rk3228->spk_depop_time);
  	rk3228_analog_output(rk3228, 1);
--
-+#if 0
- 	regmap_update_bits(rk3228->regmap, HPOUTL_GAIN_CTRL,
- 			   HPOUTL_GAIN_MASK, OUT_VOLUME);
- 	regmap_update_bits(rk3228->regmap, HPOUTR_GAIN_CTRL,
- 			   HPOUTR_GAIN_MASK, OUT_VOLUME);
-+#endif
+ 
+-	regmap_update_bits(rk3228->regmap, HPOUTL_GAIN_CTRL,
+-			   HPOUTL_GAIN_MASK, OUT_VOLUME);
+-	regmap_update_bits(rk3228->regmap, HPOUTR_GAIN_CTRL,
+-			   HPOUTR_GAIN_MASK, OUT_VOLUME);
  	return 0;
  }
  
-@@ -265,7 +277,6 @@ static int rk3228_codec_close_playback(struct snd_soc_codec *codec)
+@@ -265,14 +272,8 @@ static int rk3228_codec_close_playback(struct snd_soc_codec *codec)
  {
  	struct rk3228_codec_priv *rk3228 = snd_soc_codec_get_drvdata(codec);
  	int i = 0;
 -	printk("rk3228_codec_close_playback\n");
  	rk3228_analog_output(rk3228, 0);
  
- 	regmap_update_bits(rk3228->regmap, HPOUTL_GAIN_CTRL,
-@@ -324,9 +335,6 @@ static int rk3228_pcm_startup(struct snd_pcm_substream *substream,
+-	regmap_update_bits(rk3228->regmap, HPOUTL_GAIN_CTRL,
+-			   HPOUTL_GAIN_MASK, 0);
+-	regmap_update_bits(rk3228->regmap, HPOUTR_GAIN_CTRL,
+-			   HPOUTR_GAIN_MASK, 0);
+-
+ 	for (i = 0; i < PLAYBACK_CLOSE_LIST_LEN; i++) {
+ 		regmap_update_bits(rk3228->regmap,
+ 				   playback_close_list[i].reg,
+@@ -324,9 +325,6 @@ static int rk3228_pcm_startup(struct snd_pcm_substream *substream,
  			      struct snd_soc_dai *dai)
  {
  	struct snd_soc_codec *codec = dai->codec;
@@ -89,7 +93,7 @@ index 33df092..c526321 100755
  
  	return rk3228_codec_open_playback(codec);
  }
-@@ -335,7 +343,6 @@ static void rk3228_pcm_shutdown(struct snd_pcm_substream *substream,
+@@ -335,7 +333,6 @@ static void rk3228_pcm_shutdown(struct snd_pcm_substream *substream,
  				struct snd_soc_dai *dai)
  {
  	struct snd_soc_codec *codec = dai->codec;
@@ -97,7 +101,7 @@ index 33df092..c526321 100755
  	rk3228_codec_close_playback(codec);
  }
  
-@@ -370,12 +377,13 @@ static int rk3228_codec_probe(struct snd_soc_codec *codec)
+@@ -370,12 +367,13 @@ static int rk3228_codec_probe(struct snd_soc_codec *codec)
  	rk3228_codec_reset(codec);
  	rk3228_codec_power_on(codec, 0);
  
@@ -112,7 +116,7 @@ index 33df092..c526321 100755
  	rk3228_codec_close_playback(codec);
  	rk3228_codec_power_off(codec, 0);
  
-@@ -534,14 +542,7 @@ static struct platform_driver rk3228_codec_driver = {
+@@ -534,14 +532,7 @@ static struct platform_driver rk3228_codec_driver = {
  	.probe = rk3228_platform_probe,
  	.remove = rk3228_platform_remove,
  };

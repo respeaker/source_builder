@@ -127,8 +127,8 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 			echo "patch -p1 < \"${p_dir}/0017-Volume-adjust-support-every-channels.patch\""
 			${git}  "${p_dir}/0017-Volume-adjust-support-every-channels.patch"
 
-			echo "patch -p1 < \"${p_dir}/0018-add-Playback-Volume-controls.patch\""
-			${git}  "${p_dir}/0018-add-Playback-Volume-controls.patch"									
+			echo "patch -p1 < \"${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch\""
+			${git}  "${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch"									
 			;;
 		esac
 fi
