@@ -52,20 +52,22 @@ git_generic () {
 
 build_u_boot () {
 	project="u-boot"
-	git_generic
+	if [ ! -f ${DIR}/.develop ] ; then
+		git_generic
+	        p_dir="${DIR}/build/patches/u-boot"
+		make ARCH=arm CROSS_COMPILE="${CC}" distclean
+        	case "${board}" in
+        		respeaker)
+                		echo "patch -p1 < \"${p_dir}/0001-include-configs-use-respeaker-boot-first.patch\""
+                		${git} "${p_dir}/0001-include-configs-use-respeaker-boot-first.patch"
 
-	make ARCH=arm CROSS_COMPILE="${CC}" distclean
-
-	p_dir="${DIR}/build/patches/u-boot"
-	case "${board}" in
-	respeaker)
-		echo "patch -p1 < \"${p_dir}/0001-rockchip-rk322x-remove-default-parts-and-CONFIG_BOOT.patch\""
-		${git} "${p_dir}/0001-rockchip-rk322x-remove-default-parts-and-CONFIG_BOOT.patch"
-
-		echo "patch -p1 < \"${p_dir}/0002-configs-set-the-debug-baudrate-as-115200.patch\""		
-		${git} "${p_dir}/0002-configs-set-the-debug-baudrate-as-115200.patch"
-		;;
-	esac
+                		echo "patch -p1 < \"${p_dir}/0002-configs-set-the-debug-baudrate-as-115200.patch\""             
+                		${git} "${p_dir}/0002-configs-set-the-debug-baudrate-as-115200.patch"
+                	;;
+        	esac
+	else
+		cd ${DIR}/u-boot
+	fi
 
 
 	# if [ "x${board}" = "xam57xx_evm_ti" ] ; then

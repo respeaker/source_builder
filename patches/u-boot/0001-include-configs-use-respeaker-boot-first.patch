@@ -1,14 +1,14 @@
-From 022d846e93936da261c9c53f252cca8bb79ef69e Mon Sep 17 00:00:00 2001
+From 3b687f529fa18d6248cb4088aa8cdcf1503c1872 Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Tue, 29 Aug 2017 19:41:49 +0800
-Subject: [PATCH] rockchip:rk3229 remove default parts and CONFIG_BOOTCOMM
+Date: Thu, 7 Sep 2017 09:22:40 +0800
+Subject: [PATCH] include:configs: use respeaker boot first
 
 ---
- include/configs/evb_rk3229.h | 28 +++-------------------------
- 1 file changed, 3 insertions(+), 25 deletions(-)
+ include/configs/evb_rk3229.h | 66 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 40 insertions(+), 26 deletions(-)
 
 diff --git a/include/configs/evb_rk3229.h b/include/configs/evb_rk3229.h
-index df441f6..5ffde1a 100644
+index df441f6..d7ba1f2 100644
 --- a/include/configs/evb_rk3229.h
 +++ b/include/configs/evb_rk3229.h
 @@ -14,39 +14,17 @@
@@ -54,6 +54,50 @@ index df441f6..5ffde1a 100644
  
  /* Enable atags */
  #define CONFIG_SYS_BOOTPARAMS_LEN	(64*1024)
+@@ -54,6 +32,42 @@
+ #define CONFIG_SETUP_MEMORY_TAGS
+ #define CONFIG_CMDLINE_TAG
+ 
+-#endif
+ 
++#include <config_distro_bootcmd.h>
++
++#undef CONFIG_EXTRA_ENV_SETTINGS
++#define CONFIG_EXTRA_ENV_SETTINGS \
++	"fdt_high=0x7fffffff\0" \
++	"partitions=" PARTS_DEFAULT \
++	ENV_MEM_LAYOUT_SETTINGS \
++	"earlycon=uart8250,mmio32,0x11030000\0" \
++	"console=uart8250,mmio32,0x11030000,115200n8 rw\0" \
++	"rootfstype=ext4\0" \
++	"init=/sbin/init\0" \
++	"respeaker_boot=" \
++		"if mmc dev 1 ; then " \
++			"mmcdev=1; " \
++		"else " \
++			"mmcdev=0; " \
++		"fi; " \
++		"echo SD/MMC found on device ${mmcdev}; " \
++		"part uuid mmc ${mmcdev}:7 rootfsuuid; " \
++		"echo [DEBUG: fatload mmc 0:6 ${scriptaddr} uEnv.txt]; " \
++		"fatload mmc 0:6 ${scriptaddr} uEnv.txt; " \
++		"env import -t ${scriptaddr}; " \
++		"setenv bootargs console=${console} " \
++			"${cmdline} " \
++			"root=PARTUUID=${rootfsuuid} " \
++			"rootfstype=${rootfstype}; " \
++		"fatload mmc ${mmcdev}:6 ${kernel_addr_r} vmlinuz-${uname_r}; " \
++		"fatload mmc ${mmcdev}:6 ${fdt_addr_r} ${dtb}; " \
++		"fatload mmc ${mmcdev}:6 ${ramdisk_addr_r} initrd.img-${uname_r}; " \
++			"bootz ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}\0" \
++	BOOTENV
++
++
++#undef CONFIG_BOOTCOMMAND
++#define CONFIG_BOOTCOMMAND "run respeaker_boot"
++
++#endif
+ #endif
 -- 
 2.7.4
 
