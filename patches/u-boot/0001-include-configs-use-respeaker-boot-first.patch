@@ -1,6 +1,6 @@
-From 3b687f529fa18d6248cb4088aa8cdcf1503c1872 Mon Sep 17 00:00:00 2001
+From 27a0af274dcd11c85b51bacbbe28866d4abab717 Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Thu, 7 Sep 2017 09:22:40 +0800
+Date: Mon, 11 Sep 2017 18:58:54 +0800
 Subject: [PATCH] include:configs: use respeaker boot first
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] include:configs: use respeaker boot first
  1 file changed, 40 insertions(+), 26 deletions(-)
 
 diff --git a/include/configs/evb_rk3229.h b/include/configs/evb_rk3229.h
-index df441f6..d7ba1f2 100644
+index df441f6..d900dd4 100644
 --- a/include/configs/evb_rk3229.h
 +++ b/include/configs/evb_rk3229.h
 @@ -14,39 +14,17 @@
@@ -72,22 +72,22 @@ index df441f6..d7ba1f2 100644
 +	"rootfstype=ext4\0" \
 +	"init=/sbin/init\0" \
 +	"respeaker_boot=" \
-+		"if mmc dev 1 ; then " \
++		"if fatload mmc 1:6 ${scriptaddr} uEnv.txt ; then " \
 +			"mmcdev=1; " \
 +		"else " \
 +			"mmcdev=0; " \
 +		"fi; " \
 +		"echo SD/MMC found on device ${mmcdev}; " \
 +		"part uuid mmc ${mmcdev}:7 rootfsuuid; " \
-+		"echo [DEBUG: fatload mmc 0:6 ${scriptaddr} uEnv.txt]; " \
-+		"fatload mmc 0:6 ${scriptaddr} uEnv.txt; " \
++		"echo [DEBUG: fatload mmc ${mmcdev}:6 ${scriptaddr} uEnv.txt]; " \
++		"fatload mmc ${mmcdev}:6 ${scriptaddr} uEnv.txt; " \
 +		"env import -t ${scriptaddr}; " \
 +		"setenv bootargs console=${console} " \
 +			"${cmdline} " \
 +			"root=PARTUUID=${rootfsuuid} " \
 +			"rootfstype=${rootfstype}; " \
 +		"fatload mmc ${mmcdev}:6 ${kernel_addr_r} vmlinuz-${uname_r}; " \
-+		"fatload mmc ${mmcdev}:6 ${fdt_addr_r} ${dtb}; " \
++		"fatload mmc ${mmcdev}:6 ${fdt_addr_r} dtb/${dtb}; " \
 +		"fatload mmc ${mmcdev}:6 ${ramdisk_addr_r} initrd.img-${uname_r}; " \
 +			"bootz ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}\0" \
 +	BOOTENV
