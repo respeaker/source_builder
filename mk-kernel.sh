@@ -58,7 +58,7 @@ echo -e "\e[36m Building kernel for ${BOARD} board! \e[0m"
 echo -e "\e[36m Using ${DEFCONFIG} \e[0m"
 
 build_opts="-j${CORES}"
-build_opts="${build_opts} LOCALVERSION=-respeaker-v2"
+build_opts="${build_opts} LOCALVERSION=-respeaker-r4"
 build_opts="${build_opts} KDEB_PKGVERSION=1stable"
 
 
@@ -129,6 +129,9 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 
 			echo "patch -p1 < \"${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch\""
 			${git}  "${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch"									
+                        
+			echo "patch -p1 < \"${p_dir}/0019-scripts-change-dtb-install-dir.patch\""
+                        ${git}  "${p_dir}/0019-scripts-change-dtb-install-dir.patch"
 			;;
 		esac
 fi
