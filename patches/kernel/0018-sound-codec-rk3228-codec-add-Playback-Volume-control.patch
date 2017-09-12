@@ -1,12 +1,32 @@
-From f23e03091ca5b7b639a7bca650942da74c5a7677 Mon Sep 17 00:00:00 2001
+From 0403f9802984c25e21e1bee49cbef7e037fbde2a Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Fri, 1 Sep 2017 10:43:47 +0800
+Date: Mon, 11 Sep 2017 18:56:44 +0800
 Subject: [PATCH] sound: codec: rk3228-codec add Playback Volume controls
 
 ---
+ sound/soc/codecs/ac108.c        |  8 ++++----
  sound/soc/codecs/rk3228_codec.c | 43 ++++++++++++++++-------------------------
- 1 file changed, 17 insertions(+), 26 deletions(-)
+ 2 files changed, 21 insertions(+), 30 deletions(-)
 
+diff --git a/sound/soc/codecs/ac108.c b/sound/soc/codecs/ac108.c
+index 5f165fc..9f0c51e 100644
+--- a/sound/soc/codecs/ac108.c
++++ b/sound/soc/codecs/ac108.c
+@@ -167,10 +167,10 @@ static const DECLARE_TLV_DB_SCALE(adc2_pga_gain_tlv, 0, 100, 0);
+ static const DECLARE_TLV_DB_SCALE(adc3_pga_gain_tlv, 0, 100, 0);
+ static const DECLARE_TLV_DB_SCALE(adc4_pga_gain_tlv, 0, 100, 0);
+ 
+-static const DECLARE_TLV_DB_SCALE(ch1_digital_vol_tlv, -11925,75,0);
+-static const DECLARE_TLV_DB_SCALE(ch2_digital_vol_tlv, -11925,75,0);
+-static const DECLARE_TLV_DB_SCALE(ch3_digital_vol_tlv, -11925,75,0);
+-static const DECLARE_TLV_DB_SCALE(ch4_digital_vol_tlv, -11925,75,0);
++static const DECLARE_TLV_DB_SCALE(ch1_digital_vol_tlv, -9750, 50, 1);
++static const DECLARE_TLV_DB_SCALE(ch2_digital_vol_tlv, -9750, 50, 1);
++static const DECLARE_TLV_DB_SCALE(ch3_digital_vol_tlv, -9750, 50, 1);
++static const DECLARE_TLV_DB_SCALE(ch4_digital_vol_tlv, -9750, 50, 1);
+ 
+ static const DECLARE_TLV_DB_SCALE(digital_mix_vol_tlv, -600,600,0);
+ 
 diff --git a/sound/soc/codecs/rk3228_codec.c b/sound/soc/codecs/rk3228_codec.c
 index 33df092..472c2d4 100755
 --- a/sound/soc/codecs/rk3228_codec.c

@@ -1,0 +1,25 @@
+From 3ae370dd5691bf79c918fbae4e1d3d7925260169 Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Tue, 12 Sep 2017 08:51:49 +0800
+Subject: [PATCH] scripts: change dtb install dir
+
+---
+ scripts/package/builddeb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 6c3b038..69249c6 100755
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -151,7 +151,7 @@ fi
+ if grep -q "^CONFIG_OF=y" $KCONFIG_CONFIG ; then
+ 	# Only some architectures with OF support have this target
+ 	if grep -q dtbs_install "${srctree}/arch/$SRCARCH/Makefile"; then
+-		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
++		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtb" dtbs_install
+ 	fi
+ fi
+ 
+-- 
+2.7.4
+
