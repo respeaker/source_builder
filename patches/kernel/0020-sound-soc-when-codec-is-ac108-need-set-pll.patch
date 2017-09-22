@@ -1,0 +1,44 @@
+From b2121f00debaed3fb721820d9143d7b9846633fb Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Fri, 22 Sep 2017 17:32:09 +0800
+Subject: [PATCH 1/5] sound: soc: when codec is ac108, need set pll
+
+---
+ sound/soc/generic/simple-card.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/sound/soc/generic/simple-card.c b/sound/soc/generic/simple-card.c
+index dc971a0..21f65f8 100644
+--- a/sound/soc/generic/simple-card.c
++++ b/sound/soc/generic/simple-card.c
+@@ -90,11 +90,22 @@ static int asoc_simple_card_hw_params(struct snd_pcm_substream *substream,
+ 
+ 	if (mclk_fs) {
+ 		mclk = params_rate(params) * mclk_fs;
+-		ret = snd_soc_dai_set_sysclk(codec_dai, 0, mclk,
+-					     SND_SOC_CLOCK_IN);
+-		if (ret && ret != -ENOTSUPP)
+-			goto err;
+-
++		if (strncmp(codec_dai->name, "ac108", 5) == 0){
++			ret = snd_soc_dai_set_sysclk(codec_dai, 1, mclk,
++							 SND_SOC_CLOCK_IN);
++			if (ret && ret != -ENOTSUPP)
++				goto err;
++
++			ret =  snd_soc_dai_set_pll(codec_dai, 1, 0, params_rate(params)*2*32, 0);
++			if (ret && ret != -ENOTSUPP)
++				goto err;
++
++		}else{
++			ret = snd_soc_dai_set_sysclk(codec_dai, 0, mclk,
++							 SND_SOC_CLOCK_IN);
++			if (ret && ret != -ENOTSUPP)
++				goto err;
++		}
+ 		ret = snd_soc_dai_set_sysclk(cpu_dai, 0, mclk,
+ 					     SND_SOC_CLOCK_OUT);
+ 		if (ret && ret != -ENOTSUPP)
+-- 
+2.7.4
+

@@ -131,7 +131,22 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 			${git}  "${p_dir}/0017-Volume-adjust-support-every-channels.patch"
 
 			echo "patch -p1 < \"${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch\""
-			${git}  "${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch"									
+			${git}  "${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch"		
+
+			echo "patch -p1 < \"${p_dir}/0020-sound-soc-when-codec-is-ac108-need-set-pll.patch\""
+			${git}  "${p_dir}/0020-sound-soc-when-codec-is-ac108-need-set-pll.patch"	
+
+			echo "patch -p1 < \"${p_dir}/0021-sound-soc-open-and-close-mclk-in-i2s_trigger.patch\""
+			${git}  "${p_dir}/0021-sound-soc-open-and-close-mclk-in-i2s_trigger.patch"	
+
+			echo "patch -p1 < \"${p_dir}/0022-sound-soc-codec-enable-and-disable-mclk-in-pcm-start.patch\""
+			${git}  "${p_dir}/0022-sound-soc-codec-enable-and-disable-mclk-in-pcm-start.patch"	
+
+			echo "patch -p1 < \"${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch\""
+			${git}  "${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch"	
+
+			echo "patch -p1 < \"${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch\""
+			${git}  "${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch"																						
 			;;
 		esac
 fi
