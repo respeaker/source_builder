@@ -57,8 +57,9 @@ fi
 echo -e "\e[36m Building kernel for ${BOARD} board! \e[0m"
 echo -e "\e[36m Using ${DEFCONFIG} \e[0m"
 
+KERNEL_VERSION=-respeaker-r4
 build_opts="-j${CORES}"
-build_opts="${build_opts} LOCALVERSION=-respeaker-r4"
+build_opts="${build_opts} LOCALVERSION=${KERNEL_VERSION}"
 build_opts="${build_opts} KDEB_PKGVERSION=1stable"
 
 
@@ -78,6 +79,8 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 		respeaker)
 			git_generic
 			p_dir="${DIR}/build/patches/kernel"
+			echo "patch -p1 < \"${p_dir}/0019-scripts-change-dtb-install-dir.patch\""
+                        ${git}  "${p_dir}/0019-scripts-change-dtb-install-dir.patch"
 			
 			echo "patch -p1 < \"${p_dir}/0001-sound-codecs-add-x-power-ac108-multichannel-ADC.patch\""
 			${git}  "${p_dir}/0001-sound-codecs-add-x-power-ac108-multichannel-ADC.patch"
@@ -129,9 +132,6 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 
 			echo "patch -p1 < \"${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch\""
 			${git}  "${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch"									
-                        
-			echo "patch -p1 < \"${p_dir}/0019-scripts-change-dtb-install-dir.patch\""
-                        ${git}  "${p_dir}/0019-scripts-change-dtb-install-dir.patch"
 			;;
 		esac
 fi
@@ -162,6 +162,21 @@ fi
 
 cp ${LOCALPATH}/kernel-src/arch/arm/boot/dts/${DTB} ${OUT}/kernel/
 cp ${LOCALPATH}/kernel-src/arch/arm/boot/zImage ${OUT}/kernel/
+
+if [  -f ${LOCALPATH}/.develop ] ; then
+	#sed -i -e 's:#PermitEmptyPasswords no:PermitEmptyPasswords yes:g' /etc/ssh/sshd_config
+	#sed -i -e 's:UsePAM yes:UsePAM no:g' /etc/ssh/sshd_config
+	#sed -i -e 's:#PermitRootLogin prohibit-password:PermitRootLogin yes:g' /etc/ssh/sshd_config
+
+	name=root
+	ip=192.168.199.171
+	if [ "x${name}" != "x" ] ; then
+		scp ${OUT}/kernel/${DTB} ${name}@${ip}:/boot/dtb
+		echo "scp vmlinuz-4.4.70${KERNEL_VERSION}"
+		scp ${OUT}/kernel/zImage ${name}@${ip}:/boot/vmlinuz-4.4.70${KERNEL_VERSION}
+		timeout 3 ssh  ${name}@${ip} "reboot -f " || true
+	fi
+fi
 # Change extlinux.conf according board
 sed -e "s,fdt .*,fdt /$DTB,g" \
 	-i ${EXTLINUXPATH}/${CHIP}.conf
