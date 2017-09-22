@@ -145,8 +145,8 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 			echo "patch -p1 < \"${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch\""
 			${git}  "${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch"	
 
-			echo "patch -p1 < \"${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch\""
-			${git}  "${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch"																						
+			echo "patch -p1 < \"${p_dir}/0024-sound-soc-codecs-use-xpower-ac108-linux-drivers.patch\""
+			${git}  "${p_dir}/0024-sound-soc-codecs-use-xpower-ac108-linux-drivers.patch"																						
 			;;
 		esac
 fi
