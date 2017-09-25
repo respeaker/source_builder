@@ -87,7 +87,7 @@ index df441f6..d900dd4 100644
 +			"root=PARTUUID=${rootfsuuid} " \
 +			"rootfstype=${rootfstype}; " \
 +		"fatload mmc ${mmcdev}:6 ${kernel_addr_r} vmlinuz-${uname_r}; " \
-+		"fatload mmc ${mmcdev}:6 ${fdt_addr_r} dtb/${dtb}; " \
++		"fatload mmc ${mmcdev}:6 ${fdt_addr_r} dtb/${uname_r}/${dtb}; " \
 +		"fatload mmc ${mmcdev}:6 ${ramdisk_addr_r} initrd.img-${uname_r}; " \
 +			"bootz ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r}\0" \
 +	BOOTENV
