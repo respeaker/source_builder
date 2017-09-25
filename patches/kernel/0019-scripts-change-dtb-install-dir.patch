@@ -16,7 +16,7 @@ index 6c3b038..69249c6 100755
  	# Only some architectures with OF support have this target
  	if grep -q dtbs_install "${srctree}/arch/$SRCARCH/Makefile"; then
 -		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/usr/lib/$packagename" dtbs_install
-+		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtb/$packagename" dtbs_install
++		$MAKE KBUILD_SRC= INSTALL_DTBS_PATH="$tmpdir/boot/dtb/$version" dtbs_install
  	fi
  fi
  

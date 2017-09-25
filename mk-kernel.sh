@@ -57,7 +57,7 @@ fi
 echo -e "\e[36m Building kernel for ${BOARD} board! \e[0m"
 echo -e "\e[36m Using ${DEFCONFIG} \e[0m"
 
-KERNEL_VERSION=-respeaker-r4
+KERNEL_VERSION=-respeaker-r5
 build_opts="-j${CORES}"
 build_opts="${build_opts} LOCALVERSION=${KERNEL_VERSION}"
 build_opts="${build_opts} KDEB_PKGVERSION=1stable"
