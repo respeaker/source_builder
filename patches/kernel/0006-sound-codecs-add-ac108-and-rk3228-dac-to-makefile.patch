@@ -1,34 +1,34 @@
-From 1ce89f572462a3456988d364985f80149ad85b78 Mon Sep 17 00:00:00 2001
+From 216cc5ee31726fb2683b9218bfd13cd72f71039e Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Tue, 8 Aug 2017 14:48:45 +0800
-Subject: [PATCH 07/11] sound: codecs: add ac108 and rk3228-dac to makefile
+Date: Mon, 16 Oct 2017 18:39:55 +0800
+Subject: [PATCH 06/12] sound: codecs: add ac108 and rk3228-dac to makefile
 
 ---
- sound/soc/codecs/Kconfig  | 14 ++++++++++++++
- sound/soc/codecs/Makefile |  4 ++++
- 2 files changed, 18 insertions(+)
+ sound/soc/codecs/Kconfig  | 12 ++++++++++++
+ sound/soc/codecs/Makefile |  5 +++++
+ 2 files changed, 17 insertions(+)
 
 diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 73396e2..9ea9490 100644
+index 3792cf4..8211849 100644
 --- a/sound/soc/codecs/Kconfig
 +++ b/sound/soc/codecs/Kconfig
-@@ -92,6 +92,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_PCM512x_I2C if I2C
+@@ -93,6 +93,7 @@ config SND_SOC_ALL_CODECS
  	select SND_SOC_PCM512x_SPI if SPI_MASTER
+ 	select SND_SOC_RK1000 if I2C
  	select SND_SOC_RK3328
 +	select SND_SOC_RK3228
  	select SND_SOC_RT286 if I2C
  	select SND_SOC_RT298 if I2C
  	select SND_SOC_RT5616 if I2C
-@@ -182,6 +183,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_WM8998 if MFD_WM8998
- 	select SND_SOC_WM9081 if I2C
- 	select SND_SOC_WM9090 if I2C
-+	select SND_SOC_AC108 if I2C
+@@ -186,6 +187,7 @@ config SND_SOC_ALL_CODECS
  	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
  	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
  	select SND_SOC_WM9713 if SND_SOC_AC97_BUS
-@@ -553,6 +555,12 @@ config SND_SOC_RK3328
++	select SND_SOC_AC108 if I2C
+         help
+           Normally ASoC codec drivers are only built if a machine driver which
+           uses them is also built since they are only usable with a machine
+@@ -558,6 +560,11 @@ config SND_SOC_RK3328
  	select REGMAP_MMIO
  	tristate "Rockchip RK3328 CODEC"
  
@@ -37,49 +37,39 @@ index 73396e2..9ea9490 100644
 +        tristate "Rockchip RK3228 CODEC"
 +
 +
-+
  config SND_SOC_RL6231
  	tristate
  	default y if SND_SOC_RT5616=y
-@@ -876,6 +884,7 @@ config SND_SOC_WM8962
- 	tristate "Wolfson Microelectronics WM8962 CODEC"
- 	depends on I2C && INPUT
- 
-+
- config SND_SOC_WM8971
- 	tristate
- 
-@@ -925,6 +934,11 @@ config SND_SOC_WM9081
- config SND_SOC_WM9090
- 	tristate
+@@ -962,4 +969,9 @@ config SND_SOC_TPA6130A2
+ 	tristate "Texas Instruments TPA6130A2 headphone amplifier"
+ 	depends on I2C
  
 +config SND_SOC_AC108
 +        tristate "x-power ac108 multichannal codec"
-+	depends on I2C	
++        depends on I2C
 +
 +
- config SND_SOC_WM9705
- 	tristate
- 
+ endmenu
 diff --git a/sound/soc/codecs/Makefile b/sound/soc/codecs/Makefile
-index 313eca6..093d43a 100644
+index aff1c31..7a6b198 100644
 --- a/sound/soc/codecs/Makefile
 +++ b/sound/soc/codecs/Makefile
-@@ -193,6 +193,8 @@ snd-soc-wm9705-objs := wm9705.o
+@@ -194,6 +194,9 @@ snd-soc-wm9705-objs := wm9705.o
  snd-soc-wm9712-objs := wm9712.o
  snd-soc-wm9713-objs := wm9713.o
  snd-soc-wm-hubs-objs := wm_hubs.o
 +snd-soc-ac108-objs := ac108.o
 +snd-soc-rk3228-objs := rk3228_codec.o
++
  
  # Amp
  snd-soc-max9877-objs := max9877.o
-@@ -393,6 +395,8 @@ obj-$(CONFIG_SND_SOC_WM9712)	+= snd-soc-wm9712.o
+@@ -395,6 +398,8 @@ obj-$(CONFIG_SND_SOC_WM9712)	+= snd-soc-wm9712.o
  obj-$(CONFIG_SND_SOC_WM9713)	+= snd-soc-wm9713.o
  obj-$(CONFIG_SND_SOC_WM_ADSP)	+= snd-soc-wm-adsp.o
  obj-$(CONFIG_SND_SOC_WM_HUBS)	+= snd-soc-wm-hubs.o
-+obj-$(CONFIG_SND_SOC_AC108)	+= snd-soc-ac108.o
-+obj-$(CONFIG_SND_SOC_RK3228)	+= snd-soc-rk3228.o
++obj-$(CONFIG_SND_SOC_AC108)     += snd-soc-ac108.o
++obj-$(CONFIG_SND_SOC_RK3228)    += snd-soc-rk3228.o
  
  # Amp
  obj-$(CONFIG_SND_SOC_MAX9877)	+= snd-soc-max9877.o

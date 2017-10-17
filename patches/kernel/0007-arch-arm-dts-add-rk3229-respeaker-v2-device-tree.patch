@@ -1,32 +1,19 @@
-From 7c1888d3f2d50e960b5349214898a15038539af8 Mon Sep 17 00:00:00 2001
+From f63e4a80d385aafceb62231f021cb616d77b17b5 Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Tue, 8 Aug 2017 14:49:45 +0800
-Subject: [PATCH 08/11] arch: arm: dts: add respeaker v2 board device tree
+Date: Mon, 16 Oct 2017 18:40:58 +0800
+Subject: [PATCH 07/12] arch: arm: dts: add rk3229 respeaker v2 device tree
 
 ---
- arch/arm/boot/dts/Makefile                |   1 +
- arch/arm/boot/dts/rk3229-respeaker-v2.dts | 496 ++++++++++++++++++++++++++++++
- 2 files changed, 497 insertions(+)
+ arch/arm/boot/dts/rk3229-respeaker-v2.dts | 560 ++++++++++++++++++++++++++++++
+ 1 file changed, 560 insertions(+)
  create mode 100644 arch/arm/boot/dts/rk3229-respeaker-v2.dts
 
-diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index c5397ec..7b59fd4 100644
---- a/arch/arm/boot/dts/Makefile
-+++ b/arch/arm/boot/dts/Makefile
-@@ -520,6 +520,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
- 	rk3188-radxarock.dtb \
- 	rk3228-evb.dtb \
- 	rk3229-echo-v10.dtb \
-+	rk3229-respeaker-v2.dtb \
- 	rk3229-evb.dtb \
- 	rk3229-gva-sdk.dtb \
- 	rk3288-evb-act8846.dtb \
 diff --git a/arch/arm/boot/dts/rk3229-respeaker-v2.dts b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
 new file mode 100644
-index 0000000..a36238f
+index 0000000..21c13f4
 --- /dev/null
 +++ b/arch/arm/boot/dts/rk3229-respeaker-v2.dts
-@@ -0,0 +1,496 @@
+@@ -0,0 +1,560 @@
 +/*
 + * Copyright (c) 2017 Seeed Technology Co., Ltd
 + *
@@ -83,7 +70,16 @@ index 0000000..a36238f
 +		device_type = "memory";
 +		reg = <0x60000000 0x40000000>;
 +	};
++        reserved-memory {
++              #address-cells = <1>;
++               #size-cells = <1>;
++               ranges;
 +
++               trust_reserved: trust@0x68400000 {
++                       reg = <0x68400000 0xE00000>;
++                       no-map;
++               };
++       };
 +	sdio_pwrseq: sdio-pwrseq {
 +		compatible = "mmc-pwrseq-simple";
 +		clocks = <&rk805 1>;
@@ -99,6 +95,13 @@ index 0000000..a36238f
 +		 */
 +		reset-gpios = <&gpio2 26 GPIO_ACTIVE_LOW>; /* GPIO2_D2 */
 +	};
++
++	vcc_phy: vcc-phy-regulator {
++ 		compatible = "regulator-fixed";
++ 		regulator-name = "vcc_phy";
++ 		regulator-always-on;
++ 		regulator-boot-on;
++ 	};
 +
 +	vcc_host: vcc-host-regulator {
 +		compatible = "regulator-fixed";
@@ -141,16 +144,37 @@ index 0000000..a36238f
 +		autorepeat;
 +
 +		pinctrl-names = "default";
-+		pinctrl-0 = <&pwr_key>;
++		pinctrl-0 = <&user_key>;
 +
-+		power_key: power-key {
-+			label = "GPIO Key Power";
-+			gpios = <&gpio3 23 GPIO_ACTIVE_LOW>;
-+			linux,code = <116>;
++		key_1: key-1 {
++			label = "GPIO User Key";
++			gpios = <&gpio3 25 GPIO_ACTIVE_LOW>;
++			linux,code = <194>;
 +			debounce-interval = <100>;
 +			wakeup-source;
 +		};
 +	};
++        gpio-leds {
++                compatible = "gpio-leds";
++                pinctrl-names = "default";
++                pinctrl-0 = <&gpio_leds>;
++
++                heartbeat {
++                        gpios = <&gpio1 7 GPIO_ACTIVE_LOW>;
++                        label = "respeaker2:blue:state1";
++                        linux,default-trigger = "heartbeat";
++			default-state = "off";
++                };
++
++                mmc {
++                        gpios = <&gpio3 21 GPIO_ACTIVE_LOW>;
++                        label = "respeaker2:blue:state2";
++                        linux,default-trigger = "mmc0";
++			default-state = "off";
++                };
++        };
++
++
 +	fiq-debugger {
 +	       status = "disabled";
 +	};
@@ -259,7 +283,7 @@ index 0000000..a36238f
 +                       <&gpio0 30 GPIO_ACTIVE_LOW>; /*GPIO_D6*/
 +		interrupt-parent = <&gpio1>;
 +		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;
-+		spinctrl-names = "default";
++		pinctrl-names = "default";
 +		pinctrl-0 = <&pmic_int_l>;
 +		rockchip,system-power-controller;
 +		wakeup-source;
@@ -419,8 +443,8 @@ index 0000000..a36238f
 +	};
 +
 +	keys {
-+		pwr_key: pwr-key {
-+			rockchip,pins = <3 23 RK_FUNC_GPIO &pcfg_pull_up>;
++		user_key: user-key {
++			rockchip,pins = <3 25 RK_FUNC_GPIO &pcfg_pull_up>;
 +		};
 +	};
 +	pcm {
@@ -429,6 +453,12 @@ index 0000000..a36238f
 +					 <0 27 RK_FUNC_2 &pcfg_pull_none>,
 +					 <3 11 RK_FUNC_1 &pcfg_pull_none>,
 +					 <3 12 RK_FUNC_1 &pcfg_pull_none>;
++		};
++	};
++	gpio {
++		gpio_leds: gpio-leds {
++			rockchip,pins = <1 7 RK_FUNC_GPIO &pcfg_pull_none>,
++					<3 21 RK_FUNC_GPIO &pcfg_pull_none>;
 +		};
 +	};
 +
@@ -441,15 +471,16 @@ index 0000000..a36238f
 +	assigned-clock-parents = <&xin24m>;
 +};
 +
-+&u2phy0_host {
-+	phy-supply = <&vcc_host>;
++&sdmmc {
++	status = "okay";
 +};
++
 +&hdmi {
-+	status = "disabled";
++	status = "okay";
 +};
 +
 +&hdmi_phy {
-+	status = "disabled";
++	status = "okay";
 +};
 +&i2s1 {
 +	#sound-dai-cells = <0>;
@@ -458,58 +489,19 @@ index 0000000..a36238f
 +&i2c1 {
 +	status = "okay";
 +
-+	ac108_0: ac08@3b {
++	ac108_0: ac108@3b {
 +		#sound-dai-cells = <0>;
-+		compatible = "x-power,ac108_0";
-+		clocks = <&xin24m>;
-+		clock-names = "mclk";
++		compatible = "MicArray_0";
 +		reg = <0x3b>;
-+		data-protocol = <0>;
-+		init-data =  /bits/ 8 <
-+		/*reg val*/
-+		0x39  0x03  /*0x39:TX1 Channel1 ~Channel8 (slot) enable:two ch*/
-+		0x3a  0x00  /*0x3A:TX1 Channel1 ~Channel8 (slot) enable*/
-+		0x41  0x03  /*0x41:TX2 Channel1 ~Channel8 (slot) enable:two ch*/
-+		0x42  0x00  /*0x42:TX2 Channel1 ~Channel8 (slot) enable*/
-+		0x38  0x01  /*0x38:TX1 Channel (slot) number Select for each output:two 2ch*/
-+		0x40  0x01  /*0x40:TX1 Channel (slot) number Select for each output:two 2ch*/
-+		0x3c  0x04  /*0x3c:  TX1 Channel Mapping Control 1:ch1 ch2*/
-+		0x3d  0x00  /*0x3d:  TX1 Channel Mapping Control 2*/
-+		0x3e  0x00  /*0x3e:  TX1 Channel Mapping Control 3*/
-+		0x3f  0x00  /*0x3f:  TX1 Channel Mapping Control 4*/
-+		0x44  0x0e  /*0x44:  TX2 Channel Mapping Control 1:ch3 ch4*/
-+		0x45  0x00  /*0x45:  TX2 Channel Mapping Control 2*/
-+		0x46  0x00  /*0x46:  TX2 Channel Mapping Control 3*/
-+		0x47  0x00  /*0x47:  TX2 Channel Mapping Control 4*/
-+		0xad  0x50
-+		>;
 +	};
-+	ac108_1: ac08@35 {
++	ac108_1: ac108@35 {
 +		#sound-dai-cells = <0>;
-+		compatible = "x-power,ac108_1";
-+		clocks = <&xin24m>;
-+		clock-names = "mclk";
++		compatible = "MicArray_1";
 +		reg = <0x35>;
-+		data-protocol = <0>;
-+		init-data =  /bits/ 8 <
-+		/*reg val*/
-+		0x39  0x03  /*0x39:TX1 Channel1 ~Channel8 (slot) enable:two ch*/
-+		0x3a  0x00  /*0x3A:TX1 Channel1 ~Channel8 (slot) enable*/
-+		0x41  0x03  /*0x41:TX2 Channel1 ~Channel8 (slot) enable:two ch*/
-+		0x42  0x00  /*0x42:TX2 Channel1 ~Channel8 (slot) enable*/
-+		0x38  0x01  /*0x38:TX1 Channel (slot) number Select for each output:two 2ch*/
-+		0x40  0x01  /*0x40:TX1 Channel (slot) number Select for each output:two 2ch*/
-+		0x3c  0x04  /*0x3c:  TX1 Channel Mapping Control 1:ch1 ch2*/
-+		0x3d  0x00  /*0x3d:  TX1 Channel Mapping Control 2*/
-+		0x3e  0x00  /*0x3e:  TX1 Channel Mapping Control 3*/
-+		0x3f  0x00  /*0x3f:  TX1 Channel Mapping Control 4*/
-+		0x44  0x0e  /*0x44:  TX2 Channel Mapping Control 1:ch3 ch4*/
-+		0x45  0x00  /*0x45:  TX2 Channel Mapping Control 2*/
-+		0x46  0x00  /*0x46:  TX2 Channel Mapping Control 3*/
-+		0x47  0x00  /*0x47:  TX2 Channel Mapping Control 4*/
-+		0xad  0x50
-+		>;
 +	};
++};
++&i2c2 {
++	status = "okay";
 +};
 +&i2s1 {
 +	#sound-dai-cells = <0>;
@@ -522,7 +514,66 @@ index 0000000..a36238f
 +	pinctrl-0 = <&pcm_io>;
 +	status = "okay";
 +};
++&spi0{
++	dmas = <&pdma 8>, <&pdma 9>;
++	dma-names = "tx", "rx";
++	status = "okay";
++        spi0_0 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                spi-max-frequency = <24000000>;
++                reg = <0>;
++                compatible = "rohm,dh2228fv";
++        };
++        spi0_1 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                spi-max-frequency = <24000000>;
++                reg = <1>;
++                compatible = "rohm,dh2228fv";
++        };
++};
++&gmac {
++	assigned-clocks = <&cru SCLK_MAC_SRC>;
++	assigned-clock-rates = <50000000>;
++	clock_in_out = "output";
++	phy-supply = <&vcc_phy>;
++	phy-mode = "rmii";
++	phy-is-integrated;
++	status = "okay";
++};
 +
++&u2phy0_host {
++	phy-supply = <&vcc_host>;
++};
++
++&u2phy1_host {
++	phy-supply = <&vcc_host>;
++};
++
++&usb_host0_ehci {
++	status = "okay";
++};
++
++&usb_host0_ohci {
++	status = "okay";
++};
++
++&usb_host1_ehci {
++	status = "okay";
++};
++
++&usb_host1_ohci {
++	status = "okay";
++};
++
++&usb_host2_ehci {
++	status = "okay";
++};
++
++&usb_host2_ohci {
++	status = "okay";
++};
 -- 
 2.7.4
 

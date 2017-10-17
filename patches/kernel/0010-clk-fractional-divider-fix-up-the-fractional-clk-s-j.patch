@@ -1,19 +1,19 @@
-From ca183af6803242b136caa9791fc9d3e39fa08f03 Mon Sep 17 00:00:00 2001
+From 259c17ab743016444d84dfaa55cee9b53d4511ee Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Tue, 8 Aug 2017 14:46:39 +0800
-Subject: [PATCH 05/11] clk: fractional divider fix up the fractional clk s j
+Date: Mon, 16 Oct 2017 18:43:22 +0800
+Subject: [PATCH 10/12] clk: fractional divider fix up the fractional clk s j
 
 ---
- drivers/clk/clk-fractional-divider.c | 31 +++++++++++++++++++++++++++++++
- drivers/clk/rockchip/clk.c           |  2 +-
+ drivers/clk/clk-fractional-divider.c | 30 ++++++++++++++++++++++++++++++
+ drivers/clk/rockchip/clk.c           | 12 ++++++------
  include/linux/clk-provider.h         |  1 +
- 3 files changed, 33 insertions(+), 1 deletion(-)
+ 3 files changed, 37 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/clk/clk-fractional-divider.c b/drivers/clk/clk-fractional-divider.c
-index 5c4955e..908e6fe 100644
+index a8cb68d..8dea68e 100644
 --- a/drivers/clk/clk-fractional-divider.c
 +++ b/drivers/clk/clk-fractional-divider.c
-@@ -118,6 +118,37 @@ const struct clk_ops clk_fractional_divider_ops = {
+@@ -128,6 +128,36 @@ const struct clk_ops clk_fractional_divider_ops = {
  };
  EXPORT_SYMBOL_GPL(clk_fractional_divider_ops);
  
@@ -47,29 +47,45 @@ index 5c4955e..908e6fe 100644
 +EXPORT_SYMBOL_GPL(clk_fractional_divider_special_ops);
 +
 +
-+
  struct clk *clk_register_fractional_divider(struct device *dev,
  		const char *name, const char *parent_name, unsigned long flags,
  		void __iomem *reg, u8 mshift, u8 mwidth, u8 nshift, u8 nwidth,
 diff --git a/drivers/clk/rockchip/clk.c b/drivers/clk/rockchip/clk.c
-index e96a2e1..08212f5 100644
+index 7cb2f3e..4121e50 100644
 --- a/drivers/clk/rockchip/clk.c
 +++ b/drivers/clk/rockchip/clk.c
-@@ -206,7 +206,7 @@ static struct clk *rockchip_clk_register_frac_branch(
- 	div->nwidth = 16;
+@@ -181,11 +181,11 @@ void rockchip_fractional_approximation(struct clk_hw *hw,
+ 		p_parent = clk_hw_get_parent(clk_hw_get_parent(hw));
+ 		p_parent_rate = clk_hw_get_rate(p_parent);
+ 		*parent_rate = p_parent_rate;
+-		if (*parent_rate < rate * 20) {
+-			pr_err("%s parent_rate(%ld) is low than rate(%ld)*20, fractional div is not allowed\n",
+-			       clk_hw_get_name(hw), *parent_rate, rate);
+-			return;
+-		}
++//		if (*parent_rate < rate * 20) {
++//			pr_err("%s parent_rate(%ld) is low than rate(%ld)*20, fractional div is not allowed\n",
++//			       clk_hw_get_name(hw), *parent_rate, rate);
++//			return;
++//		}
+ 	}
+ 
+ 	/*
+@@ -250,7 +250,7 @@ static struct clk *rockchip_clk_register_frac_branch(
  	div->nmask = GENMASK(div->nwidth - 1, 0) << div->nshift;
  	div->lock = lock;
+ 	div->approximation = rockchip_fractional_approximation;
 -	div_ops = &clk_fractional_divider_ops;
 +	div_ops = &clk_fractional_divider_special_ops;
  
  	clk = clk_register_composite(NULL, name, parent_names, num_parents,
  				     NULL, NULL,
 diff --git a/include/linux/clk-provider.h b/include/linux/clk-provider.h
-index 2c139f9..4f3dd70 100644
+index b7f2478..e0b5332 100644
 --- a/include/linux/clk-provider.h
 +++ b/include/linux/clk-provider.h
-@@ -517,6 +517,7 @@ struct clk_fractional_divider {
- };
+@@ -534,6 +534,7 @@ struct clk_fractional_divider {
+ #define to_clk_fd(_hw) container_of(_hw, struct clk_fractional_divider, hw)
  
  extern const struct clk_ops clk_fractional_divider_ops;
 +extern const struct clk_ops clk_fractional_divider_special_ops;

@@ -1,7 +1,7 @@
-From 9519272ee9d1b93c9af5ff67c35e9be305a80c67 Mon Sep 17 00:00:00 2001
+From f22784cf32724deeec51bc1b32913e58e938d0ff Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
 Date: Tue, 8 Aug 2017 14:53:05 +0800
-Subject: [PATCH 09/11] driver: dma: fix some bugs on alsa play music
+Subject: [PATCH 01/12] driver: dma: fix some bugs on alsa play music
 
 ---
  drivers/dma/pl330.c | 286 ++++++++++++++++++----------------------------------

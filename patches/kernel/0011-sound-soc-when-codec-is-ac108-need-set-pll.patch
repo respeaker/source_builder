@@ -1,7 +1,7 @@
-From b2121f00debaed3fb721820d9143d7b9846633fb Mon Sep 17 00:00:00 2001
+From 35526c702a06c0bfdb0e999e79401fba3c9af9b1 Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Fri, 22 Sep 2017 17:32:09 +0800
-Subject: [PATCH 1/5] sound: soc: when codec is ac108, need set pll
+Date: Mon, 16 Oct 2017 18:45:47 +0800
+Subject: [PATCH 11/12] sound: soc: when codec is ac108, need set pll
 
 ---
  sound/soc/generic/simple-card.c | 21 ++++++++++++++++-----

@@ -1,7 +1,7 @@
-From db032e5be1dd69801c65d0b9a4788a294b462fa3 Mon Sep 17 00:00:00 2001
+From 09e170ba2d971e9792fbee5e2d097cdd77b159da Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
 Date: Tue, 8 Aug 2017 14:44:33 +0800
-Subject: [PATCH 03/11] sound: soc: rockchip: set the i2s default mclk when the
+Subject: [PATCH 02/12] sound: soc: rockchip: set the i2s default mclk when the
  driver is probe
 
 ---

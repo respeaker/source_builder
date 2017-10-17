@@ -1,7 +1,7 @@
-From 4553f53285ab4072f1ef64e57e3b30189a5da527 Mon Sep 17 00:00:00 2001
+From b4ea9edd5da2af3ea728d51ec080aeb411e5d92b Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
 Date: Tue, 8 Aug 2017 14:45:27 +0800
-Subject: [PATCH 04/11] sound: soc: add dt name to alsa dummy driver
+Subject: [PATCH 03/12] sound: soc: add dt name to alsa dummy driver
 
 ---
  sound/soc/soc-utils.c | 11 +++++++++++

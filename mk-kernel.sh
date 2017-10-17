@@ -57,7 +57,7 @@ fi
 echo -e "\e[36m Building kernel for ${BOARD} board! \e[0m"
 echo -e "\e[36m Using ${DEFCONFIG} \e[0m"
 
-KERNEL_VERSION=-respeaker-r5
+KERNEL_VERSION=-respeaker-r1
 build_opts="-j${CORES}"
 build_opts="${build_opts} LOCALVERSION=${KERNEL_VERSION}"
 build_opts="${build_opts} KDEB_PKGVERSION=1stable"
@@ -70,7 +70,7 @@ git_generic () {
 	git clone --share  ${LOCALPATH}/kernel  ${LOCALPATH}/kernel-src
 	cd ${LOCALPATH}/kernel-src
 	#we use this tag
-	git checkout release-20170705 
+	#git checkout release-20170705 
 	echo "-----------------------------"
 }
 git="git am"
@@ -79,74 +79,44 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 		respeaker)
 			git_generic
 			p_dir="${DIR}/build/patches/kernel"
-			echo "patch -p1 < \"${p_dir}/0019-scripts-change-dtb-install-dir.patch\""
-                        ${git}  "${p_dir}/0019-scripts-change-dtb-install-dir.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0001-sound-codecs-add-x-power-ac108-multichannel-ADC.patch\""
-			${git}  "${p_dir}/0001-sound-codecs-add-x-power-ac108-multichannel-ADC.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0002-sound-codecs-add-rk322x-on-chip-DAC-driver.patch\""
-			${git}  "${p_dir}/0002-sound-codecs-add-rk322x-on-chip-DAC-driver.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0003-sound-soc-rockchip-set-the-i2s-default-mclk-when-the.patch\""
-			${git}  "${p_dir}/0003-sound-soc-rockchip-set-the-i2s-default-mclk-when-the.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0004-sound-soc-add-dt-name-to-alsa-dummy-driver.patch\""
-			${git}  "${p_dir}/0004-sound-soc-add-dt-name-to-alsa-dummy-driver.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0005-clk-fractional-divider-fix-up-the-fractional-clk-s-j.patch\""
-			${git}  "${p_dir}/0005-clk-fractional-divider-fix-up-the-fractional-clk-s-j.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0006-usb-dwc2-gadget-fix-usb-gadget-a-bug.patchh\""
-			${git}  "${p_dir}/0006-usb-dwc2-gadget-fix-usb-gadget-a-bug.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0007-sound-codecs-add-ac108-and-rk3228-dac-to-makefile.patch\""
-			${git}  "${p_dir}/0007-sound-codecs-add-ac108-and-rk3228-dac-to-makefile.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0008-arch-arm-dts-add-respeaker-v2-board-device-tree.patch\""
-			${git}  "${p_dir}/0008-arch-arm-dts-add-respeaker-v2-board-device-tree.patch"
+			echo "patch -p1 < \"${p_dir}/0001-driver-dma-fix-some-bugs-on-alsa-play-music.patch\""
+			 ${git}  "${p_dir}/0001-driver-dma-fix-some-bugs-on-alsa-play-music.patch"
 
-			echo "patch -p1 < \"${p_dir}/0009-driver-dma-fix-some-bugs-on-alsa-play-music.patch\""
-			${git}  "${p_dir}/0009-driver-dma-fix-some-bugs-on-alsa-play-music.patch"
+			echo "patch -p1 < \"${p_dir}/0002-sound-soc-rockchip-set-the-i2s-default-mclk-when-the.patch\""
+			 ${git}  "${p_dir}/0002-sound-soc-rockchip-set-the-i2s-default-mclk-when-the.patch"
 
-			echo "patch -p1 < \"${p_dir}/0010-scripts-allow-some-waining-in-high-gcc-version.patch\""
-			${git}  "${p_dir}/0010-scripts-allow-some-waining-in-high-gcc-version.patch"
+			echo "patch -p1 < \"${p_dir}/0003-sound-soc-add-dt-name-to-alsa-dummy-driver.patch\""
+			 ${git}  "${p_dir}/0003-sound-soc-add-dt-name-to-alsa-dummy-driver.patch"
 
-			echo "patch -p1 < \"${p_dir}/0011-arch-arm-configs-add-respeaker-linux-kernel-configs.patch\""
-			${git}  "${p_dir}/0011-arch-arm-configs-add-respeaker-linux-kernel-configs.patch"
+			echo "patch -p1 < \"${p_dir}/0004-sound-codecs-add-x-power-ac108-multichannel-ADC.patch\""
+			 ${git}  "${p_dir}/0004-sound-codecs-add-x-power-ac108-multichannel-ADC.patch"
 
-			echo "patch -p1 < \"${p_dir}/0012-arm-dts-add-spi0-configurtion-to-rk322x.patch\""
-			${git}  "${p_dir}/0012-arm-dts-add-spi0-configurtion-to-rk322x.patch"
-			
-			echo "patch -p1 < \"${p_dir}/0013-arm-dts-enable-spidev-and-gpio-leds.patch\""
-			${git}  "${p_dir}/0013-arm-dts-enable-spidev-and-gpio-leds.patch"
+			echo "patch -p1 < \"${p_dir}/0005-sound-codecs-add-rk322x-on-chip-DAC-driver.patch\""
+			 ${git}  "${p_dir}/0005-sound-codecs-add-rk322x-on-chip-DAC-driver.patch"
 
-			echo "patch -p1 < \"${p_dir}/0014-arch-arm-dts-add-reserved-memory-fragment-and-gpio-l.patch\""
-			${git}  "${p_dir}/0014-arch-arm-dts-add-reserved-memory-fragment-and-gpio-l.patch"
+			echo "patch -p1 < \"${p_dir}/0006-sound-codecs-add-ac108-and-rk3228-dac-to-makefile.patch\""
+			 ${git}  "${p_dir}/0006-sound-codecs-add-ac108-and-rk3228-dac-to-makefile.patch"
 
-			echo "patch -p1 < \"${p_dir}/0015-arch-arm-configs-add-leds-trigger-and-cpu-freq.patch\""
-			${git}  "${p_dir}/0015-arch-arm-configs-add-leds-trigger-and-cpu-freq.patch"
+			echo "patch -p1 < \"${p_dir}/0007-arch-arm-dts-add-rk3229-respeaker-v2-device-tree.patch\""
+			 ${git}  "${p_dir}/0007-arch-arm-dts-add-rk3229-respeaker-v2-device-tree.patch"
 
-			echo "patch -p1 < \"${p_dir}/0017-Volume-adjust-support-every-channels.patch\""
-			${git}  "${p_dir}/0017-Volume-adjust-support-every-channels.patch"
+			echo "patch -p1 < \"${p_dir}/0008-arch-arm-dts-add-rk3229-respeaker-v2.dts-to-makefile.patch\""
+			 ${git}  "${p_dir}/0008-arch-arm-dts-add-rk3229-respeaker-v2.dts-to-makefile.patch"
 
-			echo "patch -p1 < \"${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch\""
-			${git}  "${p_dir}/0018-sound-codec-rk3228-codec-add-Playback-Volume-control.patch"		
+			echo "patch -p1 < \"${p_dir}/0009-arch-arm-dts-change-spi-default-pins.patchh\""
+			 ${git}  "${p_dir}/0009-arch-arm-dts-change-spi-default-pins.patch"		
 
-			echo "patch -p1 < \"${p_dir}/0020-sound-soc-when-codec-is-ac108-need-set-pll.patch\""
-			${git}  "${p_dir}/0020-sound-soc-when-codec-is-ac108-need-set-pll.patch"	
+			echo "patch -p1 < \"${p_dir}/0010-clk-fractional-divider-fix-up-the-fractional-clk-s-j.patch\""
+			 ${git}  "${p_dir}/0010-clk-fractional-divider-fix-up-the-fractional-clk-s-j.patch"			 	 			 			 			 			 			 
 
-			echo "patch -p1 < \"${p_dir}/0021-sound-soc-open-and-close-mclk-in-i2s_trigger.patch\""
-			${git}  "${p_dir}/0021-sound-soc-open-and-close-mclk-in-i2s_trigger.patch"	
+			echo "patch -p1 < \"${p_dir}/0011-sound-soc-when-codec-is-ac108-need-set-pll.patch\""
+			 ${git}  "${p_dir}/0011-sound-soc-when-codec-is-ac108-need-set-pll.patch"
 
-			echo "patch -p1 < \"${p_dir}/0022-sound-soc-codec-enable-and-disable-mclk-in-pcm-start.patch\""
-			${git}  "${p_dir}/0022-sound-soc-codec-enable-and-disable-mclk-in-pcm-start.patch"	
+			echo "patch -p1 < \"${p_dir}/0012-arch-arm-configs-add-respeaker_defconfig.patch\""
+			 ${git}  "${p_dir}/0012-arch-arm-configs-add-respeaker_defconfig.patch"		 			 			 
 
-			echo "patch -p1 < \"${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch\""
-			${git}  "${p_dir}/0023-arch-arm-boot-dts-use-x-power-ac108-dts-config-enabl.patch"	
-
-			echo "patch -p1 < \"${p_dir}/0024-sound-soc-codecs-use-xpower-ac108-linux-drivers.patch\""
-			${git}  "${p_dir}/0024-sound-soc-codecs-use-xpower-ac108-linux-drivers.patch"																						
+			echo "patch -p1 < \"${p_dir}/0013-scripts-change-dtb-install-dir.patch\""
+			 ${git}  "${p_dir}/0013-scripts-change-dtb-install-dir.patch"							
 			;;
 		esac
 fi
@@ -183,12 +153,12 @@ if [  -f ${LOCALPATH}/.develop ] ; then
 	#sed -i -e 's:UsePAM yes:UsePAM no:g' /etc/ssh/sshd_config
 	#sed -i -e 's:#PermitRootLogin prohibit-password:PermitRootLogin yes:g' /etc/ssh/sshd_config
 
-	name=root
-	ip=192.168.199.171
+	name="root"
+	ip=192.168.199.239
 	if [ "x${name}" != "x" ] ; then
-		scp ${OUT}/kernel/${DTB} ${name}@${ip}:/boot/dtb
+		scp ${OUT}/kernel/${DTB} ${name}@${ip}:/boot/dtb/4.4.83${KERNEL_VERSION}/
 		echo "scp vmlinuz-4.4.70${KERNEL_VERSION}"
-		scp ${OUT}/kernel/zImage ${name}@${ip}:/boot/vmlinuz-4.4.70${KERNEL_VERSION}
+		scp ${OUT}/kernel/zImage ${name}@${ip}:/boot/vmlinuz-4.4.83${KERNEL_VERSION}
 		timeout 3 ssh  ${name}@${ip} "reboot -f " || true
 	fi
 fi

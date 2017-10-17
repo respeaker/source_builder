@@ -1,52 +1,21 @@
-From cc9ea076634ce84b388711607e7c6bc162a70ed1 Mon Sep 17 00:00:00 2001
+From 2996c58e25dffe9e255dfddb46bfcbda90c7a2e1 Mon Sep 17 00:00:00 2001
 From: Baozhu Zuo <zuobaozhu@gmail.com>
-Date: Tue, 8 Aug 2017 14:42:55 +0800
-Subject: [PATCH 02/11] sound: codecs: add rk322x on-chip DAC driver
+Date: Mon, 16 Oct 2017 18:38:52 +0800
+Subject: [PATCH 05/12] sound: codecs: add rk322x on-chip DAC driver
 
 ---
- .../bindings/sound/rockchip,rk3228-codec.txt       |  23 +
- sound/soc/codecs/rk3228_codec.c                    | 547 +++++++++++++++++++++
- sound/soc/codecs/rk3228_codec.h                    | 218 ++++++++
- 3 files changed, 788 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/sound/rockchip,rk3228-codec.txt
+ sound/soc/codecs/rk3228_codec.c | 540 ++++++++++++++++++++++++++++++++++++++++
+ sound/soc/codecs/rk3228_codec.h | 218 ++++++++++++++++
+ 2 files changed, 758 insertions(+)
  create mode 100755 sound/soc/codecs/rk3228_codec.c
  create mode 100644 sound/soc/codecs/rk3228_codec.h
 
-diff --git a/Documentation/devicetree/bindings/sound/rockchip,rk3228-codec.txt b/Documentation/devicetree/bindings/sound/rockchip,rk3228-codec.txt
-new file mode 100644
-index 0000000..6535f86
---- /dev/null
-+++ b/Documentation/devicetree/bindings/sound/rockchip,rk3228-codec.txt
-@@ -0,0 +1,23 @@
-+* Rockchip Rk3328 internal codec
-+
-+Required properties:
-+
-+- compatible: "rockchip,rk3228-codec"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+- rockchip,grf: the phandle of the syscon node for GRF register.
-+- clocks: a list of phandle + clock-specifer pairs, one for each entry in clock-names.
-+- clock-names: should be "pclk".
-+- spk-depop-time-ms: speak depop time msec.
-+
-+Example for rk3228 internal codec:
-+
-+codec: codec@ff410000 {
-+	compatible = "rockchip,rk3228-codec";
-+	reg = <0x0 0xff410000 0x0 0x1000>;
-+	rockchip,grf = <&grf>;
-+	clocks = <&cru PCLK_ACODEC>;
-+	clock-names = "pclk";
-+	spk-depop-time-ms = 100;
-+	status = "disabled";
-+};
 diff --git a/sound/soc/codecs/rk3228_codec.c b/sound/soc/codecs/rk3228_codec.c
 new file mode 100755
-index 0000000..33df092
+index 0000000..bd258d1
 --- /dev/null
 +++ b/sound/soc/codecs/rk3228_codec.c
-@@ -0,0 +1,547 @@
+@@ -0,0 +1,540 @@
 +/*
 + * rk3228_codec.c  --  rk3228 ALSA Soc Audio driver
 + *
@@ -65,7 +34,7 @@ index 0000000..33df092
 + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 + *
 + */
-+#define DEBUG 1
++
 +#include <linux/module.h>
 +#include <linux/device.h>
 +#include <linux/delay.h>
@@ -76,8 +45,12 @@ index 0000000..33df092
 +#include <linux/platform_device.h>
 +#include <linux/pm_runtime.h>
 +#include <linux/regmap.h>
++#include <sound/core.h>
++#include <sound/pcm.h>
 +#include <sound/pcm_params.h>
-+#include <sound/dmaengine_pcm.h>
++#include <sound/soc.h>
++#include <sound/initval.h>
++#include <sound/tlv.h>
 +#include "rk3228_codec.h"
 +
 +/*
@@ -111,6 +84,14 @@ index 0000000..33df092
 +	{ HPOUTL_GAIN_CTRL, 0x00 },
 +	{ HPOUTR_GAIN_CTRL, 0x00 },
 +	{ HPOUT_POP_CTRL, 0x11 },
++};
++
++
++static const DECLARE_TLV_DB_SCALE(inpga_tlv, -1725, 75, 0);
++
++static const struct snd_kcontrol_new rk3228_snd_controls[] = {
++SOC_DOUBLE_R_TLV("Playback Volume", HPOUTL_GAIN_CTRL, HPOUTR_GAIN_CTRL,
++		 0, HPOUTL_GAIN_MASK, 0, inpga_tlv),
 +};
 +
 +static int rk3228_codec_reset(struct snd_soc_codec *codec)
@@ -210,7 +191,6 @@ index 0000000..33df092
 +{
 +	struct rk3228_codec_priv *rk3228 = snd_soc_codec_get_drvdata(codec);
 +
-+	printk("rk3228_codec_power_off\n");
 +	regmap_update_bits(rk3228->regmap, DAC_PRECHARGE_CTRL,
 +			   DAC_CHARGE_XCHARGE_MASK, DAC_CHARGE_DISCHARGE);
 +	mdelay(10);
@@ -274,10 +254,6 @@ index 0000000..33df092
 +	msleep(rk3228->spk_depop_time);
 +	rk3228_analog_output(rk3228, 1);
 +
-+	regmap_update_bits(rk3228->regmap, HPOUTL_GAIN_CTRL,
-+			   HPOUTL_GAIN_MASK, OUT_VOLUME);
-+	regmap_update_bits(rk3228->regmap, HPOUTR_GAIN_CTRL,
-+			   HPOUTR_GAIN_MASK, OUT_VOLUME);
 +	return 0;
 +}
 +
@@ -314,13 +290,7 @@ index 0000000..33df092
 +{
 +	struct rk3228_codec_priv *rk3228 = snd_soc_codec_get_drvdata(codec);
 +	int i = 0;
-+	printk("rk3228_codec_close_playback\n");
 +	rk3228_analog_output(rk3228, 0);
-+
-+	regmap_update_bits(rk3228->regmap, HPOUTL_GAIN_CTRL,
-+			   HPOUTL_GAIN_MASK, 0);
-+	regmap_update_bits(rk3228->regmap, HPOUTR_GAIN_CTRL,
-+			   HPOUTR_GAIN_MASK, 0);
 +
 +	for (i = 0; i < PLAYBACK_CLOSE_LIST_LEN; i++) {
 +		regmap_update_bits(rk3228->regmap,
@@ -374,8 +344,12 @@ index 0000000..33df092
 +{
 +	struct snd_soc_codec *codec = dai->codec;
 +	struct rk3228_codec_priv *rk3228 = snd_soc_codec_get_drvdata(codec);
-+
-+	printk("rk3228->mclk:%ld\n",clk_get_rate(rk3228->mclk));
++	int ret;
++	ret = clk_prepare_enable(rk3228->mclk);
++	if (ret){
++		pr_err("failed to enable acodec mclk\n");
++		return ret;
++	}
 +
 +	return rk3228_codec_open_playback(codec);
 +}
@@ -384,7 +358,8 @@ index 0000000..33df092
 +				struct snd_soc_dai *dai)
 +{
 +	struct snd_soc_codec *codec = dai->codec;
-+	printk("rk3228_pcm_shutdown\n");
++	struct rk3228_codec_priv *rk3228 = snd_soc_codec_get_drvdata(codec);
++	clk_disable_unprepare(rk3228->mclk);
 +	rk3228_codec_close_playback(codec);
 +}
 +
@@ -419,12 +394,13 @@ index 0000000..33df092
 +	rk3228_codec_reset(codec);
 +	rk3228_codec_power_on(codec, 0);
 +
++	snd_soc_add_codec_controls(codec, rk3228_snd_controls,
++						   ARRAY_SIZE(rk3228_snd_controls));
 +	return 0;
 +}
 +
 +static int rk3228_codec_remove(struct snd_soc_codec *codec)
 +{
-+	printk("rk3228_codec_remove\n");
 +	rk3228_codec_close_playback(codec);
 +	rk3228_codec_power_off(codec, 0);
 +
@@ -530,13 +506,6 @@ index 0000000..33df092
 +		dev_err(&pdev->dev, "can't get acodec mclk\n");
 +		return -EPROBE_DEFER;
 +	}
-+
-+	ret = clk_prepare_enable(rk3228->mclk);
-+	if (ret){
-+		dev_err(&pdev->dev, "failed to enable acodec mclk\n");
-+		return ret;
-+	}
-+	
 +#endif
 +
 +#if 0
@@ -583,14 +552,7 @@ index 0000000..33df092
 +	.probe = rk3228_platform_probe,
 +	.remove = rk3228_platform_remove,
 +};
-+//module_platform_driver(rk3228_codec_driver);
-+static int __init rk3228_snd_module_init(void)
-+{
-+	return platform_driver_register(&rk3228_codec_driver);;
-+}
-+late_initcall(rk3228_snd_module_init)
-+
-+
++module_platform_driver(rk3228_codec_driver);
 +MODULE_AUTHOR("Sugar Zhang <sugar.zhang@rock-chips.com>");
 +MODULE_DESCRIPTION("ASoC rk3228 codec driver");
 +MODULE_LICENSE("GPL v2");

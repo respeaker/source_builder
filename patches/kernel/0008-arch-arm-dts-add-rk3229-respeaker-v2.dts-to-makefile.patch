@@ -1,0 +1,24 @@
+From d741dd353c2eeddd1048a9de9d51933b0f6c039c Mon Sep 17 00:00:00 2001
+From: Baozhu Zuo <zuobaozhu@gmail.com>
+Date: Mon, 16 Oct 2017 18:41:35 +0800
+Subject: [PATCH 08/12] arch: arm: dts: add rk3229-respeaker-v2.dts to makefile
+
+---
+ arch/arm/boot/dts/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 7b5c51c..1ca2a64 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -521,6 +521,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
+ 	rk3188-radxarock.dtb \
+ 	rk3228-evb.dtb \
+ 	rk3229-echo-v10.dtb \
++	rk3229-respeaker-v2.dtb \
+ 	rk3229-evb.dtb \
+ 	rk3229-gva-sdk.dtb \
+ 	rk3288-evb-act8846.dtb \
+-- 
+2.7.4
+
