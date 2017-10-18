@@ -24,7 +24,8 @@ LOCALPATH=$(pwd)
 OUT=${LOCALPATH}/out
 EXTLINUXPATH=${LOCALPATH}/build/extlinux
 BOARD=$1
-
+KERNEL_VERSION=-respeaker-r1
+KVERSION=4.4.92${KERNEL_VERSION}
 
 version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; }
 
@@ -57,7 +58,6 @@ fi
 echo -e "\e[36m Building kernel for ${BOARD} board! \e[0m"
 echo -e "\e[36m Using ${DEFCONFIG} \e[0m"
 
-KERNEL_VERSION=-respeaker-r1
 build_opts="-j${CORES}"
 build_opts="${build_opts} LOCALVERSION=${KERNEL_VERSION}"
 build_opts="${build_opts} KDEB_PKGVERSION=1stable"
@@ -79,6 +79,33 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 		respeaker)
 			git_generic
 			p_dir="${DIR}/build/patches/kernel"
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0001-apply-kernel.org-patch-4.4.83-84.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0001-apply-kernel.org-patch-4.4.83-84.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0002-apply-kernel.org-patch-4.4.84-85.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0002-apply-kernel.org-patch-4.4.84-85.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0003-apply-kernel.org-patch-4.4.85-86.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0003-apply-kernel.org-patch-4.4.85-86.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0004-apply-kernel.org-patch-4.4.86-87.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0004-apply-kernel.org-patch-4.4.86-87.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0005-apply-kernel.org-patch-4.4.87-88.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0005-apply-kernel.org-patch-4.4.87-88.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0006-apply-kernel.org-patch-4.4.88-89.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0006-apply-kernel.org-patch-4.4.88-89.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0007-apply-kernel.org-patch-4.4.89-90.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0007-apply-kernel.org-patch-4.4.89-90.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0008-apply-kernel.org-patch-4.4.90-91.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0008-apply-kernel.org-patch-4.4.90-91.patch"
+
+			echo "patch -p1 < \"${p_dir}/kernel.inc/0009-apply-kernel.org-patch-4.4.91-92.patch\""
+			 ${git}  "${p_dir}/kernel.inc/0009-apply-kernel.org-patch-4.4.91-92.patch"			 			 			 			 			 			 			 
+
 			echo "patch -p1 < \"${p_dir}/0001-driver-dma-fix-some-bugs-on-alsa-play-music.patch\""
 			 ${git}  "${p_dir}/0001-driver-dma-fix-some-bugs-on-alsa-play-music.patch"
 
@@ -116,7 +143,11 @@ if [ ! -f ${LOCALPATH}/.develop ] ; then
 			 ${git}  "${p_dir}/0012-arch-arm-configs-add-respeaker_defconfig.patch"		 			 			 
 
 			echo "patch -p1 < \"${p_dir}/0013-scripts-change-dtb-install-dir.patch\""
-			 ${git}  "${p_dir}/0013-scripts-change-dtb-install-dir.patch"							
+			 ${git}  "${p_dir}/0013-scripts-change-dtb-install-dir.patch"	
+
+
+			echo "patch -p1 < \"${p_dir}/pageattr.patch\""
+			 ${git}  "${p_dir}/pageattr.patch"				 						
 			;;
 		esac
 fi
@@ -124,6 +155,7 @@ fi
 cd  ${LOCALPATH}/kernel-src
 make ${DEFCONFIG}
 make -j8
+make -j8 modules
 if [ ! -f ${LOCALPATH}/.develop ] ; then
 	fakeroot make  ${build_opts}  bindeb-pkg
 	cd ${LOCALPATH}
@@ -156,9 +188,9 @@ if [  -f ${LOCALPATH}/.develop ] ; then
 	name="root"
 	ip=192.168.199.239
 	if [ "x${name}" != "x" ] ; then
-		scp ${OUT}/kernel/${DTB} ${name}@${ip}:/boot/dtb/4.4.83${KERNEL_VERSION}/
-		echo "scp vmlinuz-4.4.70${KERNEL_VERSION}"
-		scp ${OUT}/kernel/zImage ${name}@${ip}:/boot/vmlinuz-4.4.83${KERNEL_VERSION}
+		scp ${OUT}/kernel/${DTB} ${name}@${ip}:/boot/dtb/${KVERSION}/
+		echo "scp vmlinuz-${KVERSION}"
+		scp ${OUT}/kernel/zImage ${name}@${ip}:/boot/vmlinuz-${KVERSION}
 		timeout 3 ssh  ${name}@${ip} "reboot -f " || true
 	fi
 fi
